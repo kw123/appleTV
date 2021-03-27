@@ -1,0 +1,13 @@
+changes in V 0.1.1@ 2021-03-26
+==================  
+1. first version:
+   will scan for apple tv devices every xx minutes
+   will read play status of ided apple tv devices ever xx secs
+   Configure in config:
+   - path to python
+   - time for scan and read sequences
+   In device edit the IP numebr can be over written 
+   In menu a manual scan for new devices can be initated
+      
+
+   

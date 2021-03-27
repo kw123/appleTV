@@ -1,0 +1,733 @@
+<Actions>
+
+
+
+
+    <Action id="CAMERAledOnoff">
+        <Name>CAMERAS LED set ON off-old video system</Name>
+        <CallbackMethod>buttonSendCommandToNVRLEDCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+             <Field     id="camLED" type="menu" defaultValue="0" >
+                <Label>LED set ON off:</Label>
+                 <List>
+                    <Option value="0"    >off</Option>
+                    <Option value="1"    >ON</Option>
+                 </List>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+
+
+    <Action id="CAMERAsoundOnoff">
+        <Name>CAMERAS sound  ON off-old video system</Name>
+        <CallbackMethod>buttonSendCommandToNVRSoundsCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+            <Field     id="camSounds" type="menu" defaultValue="0">
+                <Label>system Sounds Enabled  ON off:</Label>
+                 <List>
+                    <Option value="0"    >off</Option>
+                    <Option value="1"    >ON</Option>
+                 </List>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+    <Action id="CAMERAspeakerOnoff">
+        <Name>CAMERAS speaker volume-old video system</Name>
+        <CallbackMethod>buttonSendCommandToNVRenableSpeakerCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+            <Field     id="enableSpeaker" type="menu" defaultValue="0" >
+                <Label>Speaker Enabled  ON off:</Label>
+                 <List>
+                    <Option value="0"    >off</Option>
+                    <Option value="1"    >ON</Option>
+                 </List>
+            </Field>
+            <Field     id="speakerVolume" type="menu" defaultValue="100"  >
+                <Label>Speaker Volume:</Label>
+                 <List>
+                    <Option value="0"    >off</Option>
+                    <Option value="10"   >10</Option>
+                    <Option value="20"   >20</Option>
+                    <Option value="30"   >30</Option>
+                    <Option value="40"   >40</Option>
+                    <Option value="50"   >50</Option>
+                    <Option value="60"   >60</Option>
+                    <Option value="70"   >70</Option>
+                    <Option value="80"   >80</Option>
+                    <Option value="90"   >90</Option>
+                    <Option value="100"  >100</Option>
+                 </List>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+
+    <Action id="CAMERAirOnoff">
+        <Name>CAMERAS IR  ON off-old video system</Name>
+        <CallbackMethod>buttonSendCommandToNVRIRCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+            <Field     id="enableExternalIr" type="menu" defaultValue="1" >
+                <Label>IR External  ON off:</Label>
+                 <List>
+                    <Option value="0"    >off</Option>
+                    <Option value="1"    >ON</Option>
+                 </List>
+            </Field>
+            <Field     id="irLedMode" type="menu" defaultValue="auto" >
+                <Label>IR led mode:</Label>
+                 <List>
+                    <Option value="auto"         >auto</Option>
+                    <Option value="manual-255"    >on high</Option>
+                    <Option value="manual-100"    >on med</Option>
+                    <Option value="manual-0"      >off</Option>
+                 </List>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+
+
+
+    <Action id="CAMERAmicVolume">
+        <Name>CAMERAS mic volume-old video system</Name>
+        <CallbackMethod>buttonSendCommandToNVRmicVolumeCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+            <Field     id="micVolume" type="menu" defaultValue="0">
+                <Label>Mic Volume:</Label>
+                 <List>
+                    <Option value="0"    >0</Option>
+                    <Option value="10"   >10</Option>
+                    <Option value="20"   >20</Option>
+                    <Option value="30"   >30</Option>
+                    <Option value="40"   >40</Option>
+                    <Option value="50"   >50</Option>
+                    <Option value="60"   >60</Option>
+                    <Option value="70"   >70</Option>
+                    <Option value="80"   >80</Option>
+                    <Option value="90"   >90</Option>
+                    <Option value="100"  >100</Option>
+                 </List>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+
+
+
+    <Action id="CAMERArecOnoff">
+        <Name>CAMERAS record ON off-old video system</Name>
+        <CallbackMethod>buttonSendCommandToNVRRecordCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+            <Field     id="motionRecordEnabled" type="menu" defaultValue="0" >
+                <Label>Camera record "on-motion"  ON off:</Label>
+                 <List>
+                    <Option value="0"    >off</Option>
+                    <Option value="1"    >ON</Option>
+                 </List>
+            </Field>
+            <Field     id="fullTimeRecordEnabled" type="menu" defaultValue="0" >
+                <Label>Camera record fulltime ON off:</Label>
+                 <List>
+                    <Option value="0"    >off</Option>
+                    <Option value="1"    >ON</Option>
+                 </List>
+            </Field>
+            <Field     id="channel" type="menu" defaultValue="0" >
+                <Label>With resolution:</Label>
+                 <List>
+                    <Option value="2"    >2 low res</Option>
+                    <Option value="1"    >1 med res</Option>
+                    <Option value="0"    >0 high res</Option>
+                 </List>
+            </Field>
+            <Field     id="prePaddingSecs" type="menu" defaultValue="0" >
+                <Label>Pre trigger recording:</Label>
+                 <List>
+                    <Option value="-1"   >do not change</Option>
+                    <Option value="0"    >off</Option>
+                    <Option value="5"    >5 secs</Option>
+                    <Option value="10"   >10 secs</Option>
+                    <Option value="15"   >10 secs</Option>
+                 </List>
+            </Field>
+            <Field     id="postPaddingSecs" type="menu" defaultValue="0" >
+                <Label>Post trigger recording:</Label>
+                 <List>
+                    <Option value="-1"   >do not change</Option>
+                    <Option value="0"    >off</Option>
+                    <Option value="5"    >5 secs</Option>
+                    <Option value="10"   >10 secs</Option>
+                    <Option value="15"   >10 secs</Option>
+                 </List>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+
+    <Action id="CAMERAstreamOnoff">
+        <Name>CAMERAS Streaming  ON off-old video system</Name>
+        <CallbackMethod>buttonSendCommandToNVRvideostreamingCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+            <Field     id="channelS" type="menu" defaultValue="0" >
+                <Label> resolution:</Label>
+                 <List>
+                    <Option value="2"    >2 low res</Option>
+                    <Option value="1"    >1 med res</Option>
+                    <Option value="0"    >0 high res</Option>
+                 </List>
+            </Field>
+
+            <Field     id="isRtmpEnabled" type="menu" defaultValue="0" >
+                <Label>rtmp:</Label>
+                 <List>
+                    <Option value="0"    >off</Option>
+                    <Option value="1"    >on</Option>
+                 </List>
+            </Field>
+            <Field     id="isRtmpsEnabled" type="menu" defaultValue="0" >
+                <Label>rtmps:</Label>
+                 <List>
+                    <Option value="0"    >off</Option>
+                    <Option value="1"    >on</Option>
+                 </List>
+            </Field>
+            <Field     id="isRtspEnabled" type="menu" defaultValue="0" >
+                <Label>rtsp:</Label>
+                 <List>
+                    <Option value="0"    >off</Option>
+                    <Option value="1"    >on</Option>
+                 </List>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+
+    <Action id="CAMERAsnapshot">
+        <Name>CAMERAS get Snapshot-old video system</Name>
+        <CallbackMethod>buttonSendCommandToProtectgetSnapshotCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+
+           <Field     id="widthOfImage" type="textfield" defaultValue="1024" >
+                <Label>width of image(pixels):</Label>
+           </Field>
+
+            <Field     id="fileNameOfImage" type="textfield" defaultValue="/users/" >
+                <Label>file path/name of image on MAC, use .jpeg:</Label>
+           </Field>
+        </ConfigUI>
+    </Action>
+
+
+<!--
+	 now the new protect camera actions
+-->
+
+
+    <Action id="CAMERAledOnoffProtect">
+        <Name>CAMERAS LED set ON off</Name>
+        <CallbackMethod>buttonSendCommandToProtectLEDCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+             <Field     id="camLEDenabled" type="menu" defaultValue="0" >
+                <Label>LED set ON off:</Label>
+                 <List>
+					<Option value="-1"				>do not change</Option>
+                    <Option value="0"    >off</Option>
+                    <Option value="1"    >ON</Option>
+                 </List>
+            </Field>
+			<Field	   id="blinkRate" type="textfield" defaultValue="0"  >
+				<Label> ... blinkrate (0-10):</Label>
+			</Field>
+        </ConfigUI>
+    </Action>
+
+
+    <Action id="CAMERAspeakerOnoffProtect">
+        <Name>CAMERAS speaker volume</Name>
+        <CallbackMethod>buttonSendCommandToProtectenableSpeakerCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+
+			<Field	   id="areSystemSoundsEnabled" type="menu" defaultValue="0" tooltip="" >
+				<Label>=== System Sounds                   Enabled:</Label>
+				 <List>
+					<Option value="-1"				>do not change</Option>
+					<Option value="0"	 >off</Option>
+					<Option value="1"	 >ON</Option>
+				 </List>
+			</Field>
+
+			<Field	   id="isEnabled" type="menu" defaultValue="0" tooltip="" >
+				<Label>Speaker                            Enabled:</Label>
+				 <List>
+					<Option value="-1"				>do not change</Option>
+					<Option value="0"	 >off</Option>
+					<Option value="1"	 >ON</Option>
+				 </List>
+			</Field>
+
+			<Field	   id="volume" type="menu" defaultValue="100"  >
+				<Label> ... Volume:</Label>
+				 <List>
+					<Option value="-1"				>do not change</Option>
+					<Option value="0"	 >off</Option>
+					<Option value="10"	 >10</Option>
+					<Option value="20"	 >20</Option>
+					<Option value="30"	 >30</Option>
+					<Option value="40"	 >40</Option>
+					<Option value="50"	 >50</Option>
+					<Option value="60"	 >60</Option>
+					<Option value="70"	 >70</Option>
+					<Option value="80"	 >80</Option>
+					<Option value="90"	 >90</Option>
+					<Option value="100"	 >100</Option>
+				 </List>
+			</Field>
+        </ConfigUI>
+    </Action>
+
+
+    <Action id="CAMERAirOnoffProtect">
+        <Name>CAMERAS IR  ON off</Name>
+        <CallbackMethod>buttonSendCommandToProtectIRCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+
+			<Field	   id="irLedMode" type="menu" defaultValue="auto" tooltip="" >
+				<Label>=== IR LED                            ...     IR mode:</Label>
+				 <List>
+					<Option value="-1"				>do not change</Option>
+					<Option value="on"				>on</Option>
+					<Option value="off"				>off</Option>
+					<Option value="auto"			>auto</Option>
+					<Option value="autoFilterOnly"	>auto w/o LED</Option>
+				 </List>
+			</Field>
+
+			<Field	   id="irLedLevel" type="textfield" defaultValue="255" tooltip="" >
+				<Label> ...     led level (if on):</Label>
+			</Field>
+
+			<Field	   id="icrSensitivity" type="menu" defaultValue="1" tooltip="" >
+				<Label> ...     IR activation sen level:</Label>
+				 <List>
+					<Option value="-1"				>do not change</Option>
+					<Option value="0"	>low</Option>
+					<Option value="1"	>med</Option>
+					<Option value="2"	>high</Option>
+				 </List>
+			</Field>
+       </ConfigUI>
+    </Action>
+
+    <Action id="CAMERAmicVolumeProtect">
+        <Name>CAMERAS mic volume</Name>
+        <CallbackMethod>buttonSendCommandToProtectmicVolumeCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+            <Field     id="micVolume" type="menu" defaultValue="0">
+                <Label>Mic Volume:</Label>
+                 <List>
+					<Option value="-1"				>do not change</Option>
+                    <Option value="0"    >0</Option>
+                    <Option value="10"   >10</Option>
+                    <Option value="20"   >20</Option>
+                    <Option value="30"   >30</Option>
+                    <Option value="40"   >40</Option>
+                    <Option value="50"   >50</Option>
+                    <Option value="60"   >60</Option>
+                    <Option value="70"   >70</Option>
+                    <Option value="80"   >80</Option>
+                    <Option value="90"   >90</Option>
+                    <Option value="100"  >100</Option>
+                 </List>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+
+
+    <Action id="CAMERArecOnoffProtect">
+        <Name>CAMERAS record ON off</Name>
+        <CallbackMethod>buttonSendCommandToProtectRecordCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+
+			<Field	   id="motionRecordEnabledProtect" type="menu" defaultValue="motion"   >
+				<Label>=== MOTION  ...                            mode:</Label>
+				 <List>
+					<Option value="-1"				>do not change</Option>
+					<Option value="never"	 >never</Option>
+					<Option value="motion"	 >motion</Option>
+					<Option value="smartDetect"	 >smartDetect</Option>
+					<Option value="always"	 >always</Option>
+				 </List>
+			</Field>
+
+			<Field	   id="prePaddingSecs" type="menu" defaultValue="-1"   >
+				<Label>... Pre trigger recording:</Label>
+				 <List>
+					<Option value="-1"	 >do not change</Option>
+					<Option value="0"	 >off</Option>
+					<Option value="3"	 >3 secs</Option>
+					<Option value="5"	 >5 secs</Option>
+					<Option value="10"	 >10 secs</Option>
+					<Option value="15"	 >10 secs</Option>
+				 </List>
+			</Field>
+
+			<Field	   id="postPaddingSecs" type="menu" defaultValue="-1"   >
+				<Label>... Post trigger recording:</Label>
+				 <List>
+					<Option value="-1"	 >do not change</Option>
+					<Option value="0"	 >off</Option>
+					<Option value="3"	 >3 secs</Option>
+					<Option value="5"	 >5 secs</Option>
+					<Option value="10"	 >10 secs</Option>
+					<Option value="15"	 >10 secs</Option>
+				 </List>
+			</Field>
+
+
+			<Field	   id="endMotionEventDelay" type="menu" defaultValue="-1"   >
+				<Label>... end Motion Event Delay:</Label>
+				 <List>
+					<Option value="-1"	 >do not change</Option>
+					<Option value="500"	 >0.5 sec</Option>
+					<Option value="1000" >1 sec</Option>
+					<Option value="2000" >2 sec</Option>
+					<Option value="3000" >3 sec</Option>
+					<Option value="5000" >5 sec</Option>
+					<Option value="10000" >10 sec</Option>
+				 </List>
+			</Field>
+
+
+			<Field	   id="useNewMotionAlgorithm" type="menu" defaultValue="-1"   >
+				<Label>... use New Motion Algorithm:</Label>
+				 <List>
+					<Option value="-1"	 >do not change</Option>
+					<Option value="0"	 >off</Option>
+					<Option value="1"	 >on</Option>
+				 </List>
+			</Field>
+
+
+			<Field	   id="motionAlgorithm" type="menu" defaultValue="-1"   >
+				<Label>... use New Motion Algorithm:</Label>
+				 <List>
+					<Option value="-1"	 >do not change</Option>
+					<Option value="stable" >stable</Option>
+					<Option value="enhanced"	 >enhanced</Option>
+				 </List>
+			</Field>
+
+			<Field	   id="suppressIlluminationSurge" type="menu" defaultValue="-1"   >
+				<Label>... suppress Illumination Surge:</Label>
+				 <List>
+					<Option value="-1"	 >do not change</Option>
+					<Option value="0"    >on</Option>
+					<Option value="1"	 >off</Option>
+				 </List>
+			</Field>
+
+			<Field	   id="minMotionEventTrigger" type="menu" defaultValue="-1"   >
+				<Label>... min motion trigger threshold:</Label>
+				 <List>
+					<Option value="-1"	 >do not change</Option>
+					<Option value="0"	 >0 sensitive</Option>
+					<Option value="10"	 >10</Option>
+					<Option value="20"	 >20</Option>
+					<Option value="50"	 >50</Option>
+					<Option value="100"	 >100</Option>
+					<Option value="200"	 >200</Option>
+					<Option value="500"	 >500</Option>
+					<Option value="1000" >1000</Option>
+					<Option value="2000" >2000</Option>
+					<Option value="5000" >5000</Option>
+					<Option value="10000" >10000</Option>
+				 </List>
+			</Field>
+        </ConfigUI>
+    </Action>
+	
+
+    <Action id="CAMERAsnapshotProtect">
+        <Name>CAMERAS get Snapshot</Name>
+        <CallbackMethod>buttonSendCommandToProtectgetSnapshotCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field id="cameraDeviceSelected" type="menu" defaultValue="" >
+                <Label>select camera device:</Label>
+                <List class="self" filter="" method="filterCameraDevice"  dynamicReload="false"/>
+            </Field>
+
+             <Field     id="whofImage" type="menu" defaultValue="1024/768" >
+                <Label>width/height of image(pixels):</Label>
+				<List>
+					<Option value="240/180"			> 240/180</Option>
+					<Option value="320/240"			> 320/240</Option>
+					<Option value="480/320"			> 480/320</Option>
+					<Option value="640/480"			> 640/480 (low)</Option>
+					<Option value="720/540"			> 720/540</Option>
+					<Option value="1024/768"		> 1024/768 (med)</Option>
+					<Option value="1080/810"		> 1080/810</Option>
+					<Option value="1920/1440"		> 1920/1440 (high) </Option>
+					<Option value="2048/1536"		> 2048/1536 (max)</Option>
+				</List>
+           </Field>
+
+            <Field     id="fileNameOfImage" type="textfield" defaultValue="/users/" >
+                <Label>file path/name of image on MAC, use .jpeg:</Label>
+           </Field>
+        </ConfigUI>
+    </Action>
+
+    <Action id="powerCyclePort">
+        <Name>POWER  cycle a port on a UniFi switch</Name>
+        <CallbackMethod>buttonConfirmpowerCycleCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="selectedUnifiSwitch" type="menu" defaultValue="system">
+                <Label>select which switch:</Label>
+                <List class="self" filter="" method="filterUnifiSwitch"  dynamicReload="false"/>
+            </Field>
+            <Field    id="confirmSW" type="button" tooltip="" >
+                <Label>confirm SW</Label><Title>CONFIRM</Title> <CallbackMethod>buttonConfirmSWCALLBACK</CallbackMethod>
+            </Field>
+            <Field     id="selectedUnifiSwitchPort" type="menu" defaultValue="1">
+                <Label>select which port(#1..xx):</Label>
+                <List class="self" filter="" method="filterUnifiSwitchPort"  dynamicReload="yes"/>
+            </Field>
+            <Field    id="onOffCycle" type="menu" tooltip="" >
+                <List>
+                    <Option value="ON"        >ON</Option>
+                    <Option value="OFF"        >OFF</Option>
+                    <Option value="CYCLE"      >CYCLE</Option>
+                </List>
+                <Label>which action</Label>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+    <Action id="powerClientCyclePort">
+        <Name>POWER  cycle UniFi Client (PORT)</Name>
+        <CallbackMethod>buttonConfirmpowerCycleClientsCALLBACKaction</CallbackMethod>        
+        <ConfigUI>
+            <Field     id="selectedUnifiClientSwitchPort" type="menu" defaultValue="0">
+                <Label>Select UniFi-Client:</Label>
+                <List class="self" filter="" method="filterUnifiClient"  dynamicReload="no"/>
+            </Field>
+            <Field    id="onOffCycle" type="menu" tooltip="" >
+                <List>
+                    <Option value="ON"        >ON</Option>
+                    <Option value="OFF"        >OFF</Option>
+                    <Option value="CYCLE"      >CYCLE</Option>
+                </List>
+                <Label>which action</Label>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+    <Action id="reconnectWiFiDevice">
+        <Name>RECONNECT  a wifi device</Name>
+        <CallbackMethod>buttonConfirmReconnectCALLBACKaction</CallbackMethod> 
+        <ConfigUI>
+            <Field     id="selectedDevice" type="menu" defaultValue="0">
+                <Label>select UniFi-Client Wifi device:</Label>
+                <List class="self" filter="" method="filterWiFiDevice"  dynamicReload="no"/>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+
+
+
+    <Action id="blockDevice">
+        <Name>Block  a device / Client</Name>
+        <CallbackMethod>buttonConfirmBlockCALLBACKaction</CallbackMethod> 
+        <ConfigUI>
+            <Field     id="selectedDevice" type="menu" defaultValue="0">
+                <Label>select UniFi-Client device::</Label>
+                <List class="self" filter="" method="filterMACunifiOnly"  dynamicReload="no"/>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+    <Action id="unblockDevice">
+        <Name>UN-Block  a device / Client</Name>
+        <CallbackMethod>buttonConfirmUnBlockCALLBACKaction</CallbackMethod> 
+        <ConfigUI>
+            <Field     id="selectedDevice" type="menu" defaultValue="0">
+                <Label>select UniFi-Client device::</Label>
+                <List class="self" filter="" method="filterMACunifiOnly"  dynamicReload="no"/>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+    <Action id="disableUniFiAPDevice">
+        <Name>DISABLE a UniFi AP device </Name>
+        <CallbackMethod>buttonConfirmDisableAPConllerCALLBACKaction</CallbackMethod> 
+        <ConfigUI>
+            <Field     id="apDeviceSelected" type="menu" defaultValue="0">
+                <Label>select UniFi AP device::</Label>
+                <List class="self" filter="" method="filterAPdevices"  dynamicReload="no"/>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+    <Action id="enableUniFiAPDevice">
+        <Name>ENABLE  a UniFi AP device </Name>
+        <CallbackMethod>buttonConfirmEnableAPConllerCALLBACKaction</CallbackMethod> 
+        <ConfigUI>
+            <Field     id="apDeviceSelected" type="menu" defaultValue="0">
+                <Label>select UniFi AP device::</Label>
+                <List class="self" filter="" method="filterAPdevices"  dynamicReload="no"/>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+
+    <Action id="suspendUnifiDevice">
+        <Name>SUSPEND a UniFi system device (plugin does not do anything with it)</Name>
+        <CallbackMethod>buttonConfirmsuspendCALLBACKaction</CallbackMethod> 
+        <ConfigUI>
+            <Field     id="selectedDevice" type="menu" defaultValue="0">
+                <Label>select Unifi-System device:</Label>
+                <List class="self" filter="" method="filterUNIFIsystemDeviceSuspend"  dynamicReload="no"/>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+    <Action id="activateUnifiDevice">
+        <Name>UN-SUSPEND a UniFi system device from suspend state </Name>
+        <CallbackMethod>buttonConfirmactivateCALLBACKaction</CallbackMethod> 
+        <ConfigUI>
+            <Field     id="selectedDevice" type="menu" defaultValue="0">
+                <Label>select Unifi-System device:</Label>
+                <List class="self" filter="" method="filterUNIFIsystemDeviceSuspended"  dynamicReload="no"/>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+   <Action id="rebootUNIFIdevice">
+        <Name>REBOOT a UniFi system device </Name>
+            <CallbackMethod>buttonConfirmrebootCALLBACKaction</CallbackMethod>
+        <ConfigUI>
+            <Field     id="rebootUNIFIdeviceSelected" type="menu" defaultValue="system">
+                <Label>select which UniFi device:</Label>
+                <List class="self" filter="" method="filterUnifiDevices"  dynamicReload="false"/>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+
+    <Action id="APledON">
+        <Name>LED  Switch ON all AP LEDs</Name>
+        <CallbackMethod>buttonConfirmAPledONControllerCALLBACKaction</CallbackMethod> 
+    </Action>
+
+    <Action id="APledOFF">
+        <Name>LED  Switch off all AP LEDs</Name>
+        <CallbackMethod>buttonConfirmAPledOFFControllerCALLBACKaction</CallbackMethod> 
+    </Action>
+
+
+    <Action id="APledBlinkON">
+        <Name>LED  Blink one AP LED ON</Name>
+        <CallbackMethod>buttonConfirmAPxledONControllerCALLBACKaction</CallbackMethod> 
+        <ConfigUI>
+            <Field     id="selectedAPDevice" type="menu" defaultValue="0">
+                <Label>select Unifi-AP device:</Label>
+                <List class="self" filter="" method="filterMAConlyAP"  dynamicReload="no"/>
+            </Field>
+        </ConfigUI>
+    </Action>
+        
+    <Action id="APledBlinkOFF">
+        <Name>LED  Blink one AP LED OFF</Name>
+        <CallbackMethod>buttonConfirmAPxledOFFControllerCALLBACKaction</CallbackMethod> 
+        <ConfigUI>
+            <Field     id="selectedAPDevice" type="menu" defaultValue="0">
+                <Label>select Unifi-AP device:</Label>
+                <List class="self" filter="" method="filterMAConlyAP"  dynamicReload="no"/>
+            </Field>
+        </ConfigUI>
+    </Action>
+
+
+    <Action id="stopVbox">
+        <Name>VIRTUALBOX  Stop vbox machine</Name>
+        <CallbackMethod>buttonVboxActionStopCALLBACKaction</CallbackMethod>
+    </Action>
+
+    <Action id="startVbox">
+        <Name>VIRTUALBOX  start Vbox machine</Name>
+        <CallbackMethod>buttonVboxActionStartCALLBACKaction</CallbackMethod>
+    </Action>
+
+    <Action id="backupVbox">
+        <Name>VIRTUALBOX  Backup vbox vm-disk</Name>
+        <CallbackMethod>buttonVboxActionBackupCALLBACKaction</CallbackMethod>
+    </Action>
+
+    <Action id="compressVbox">
+        <Name>VIRTUALBOX  Compress vbox vm-disk</Name>
+        <CallbackMethod>buttonVboxActionCompressCALLBACKaction</CallbackMethod>
+    </Action>
+
+    <Action id="mountVMDiskPath">
+        <Name>VIRTUALBOX  Mount Video path/drive on unix box</Name>
+        <CallbackMethod>buttonMountOSXDriveOnVboxCALLBACKaction</CallbackMethod>
+    </Action>
+
+
+</Actions>

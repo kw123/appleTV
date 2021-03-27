@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<MenuItems>
+
+	<MenuItem id="printConfig">
+		<Name>PRINT parameters to logfile </Name>
+		<ConfigUI>
+				<Field id="printConfig" type="button"> 
+					<Label>PRINT Config parameters to logfile </Label> 
+					<Title>PRINT</Title><CallbackMethod>printConfigMenu</CallbackMethod>
+				</Field>
+
+		</ConfigUI>
+	</MenuItem>
+	<MenuItem id="getNewDevices">
+		<Name>Get New Devices</Name>
+		<ConfigUI>
+				<Field id="getNewDevices" type="button"> 
+					<Label>start scan for new devices</Label> 
+					<Title>Execute</Title><CallbackMethod>getNewDevicesCALLBACK</CallbackMethod>
+				</Field>
+
+		</ConfigUI>
+	</MenuItem>
+</MenuItems>
