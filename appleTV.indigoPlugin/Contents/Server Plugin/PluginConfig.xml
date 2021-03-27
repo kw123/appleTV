@@ -15,7 +15,7 @@ see: https://github.com/postlund/pyatv</Label>
 
 	<Field id="infoLabel24" 			type="label"> <Label>  </Label>  </Field>
 
-	<Field    id="pythonPath"  	type="textfield" defaultValue="/usr/local/bin/python3" tooltip="">
+	<Field    id="pathToPython3"  	type="textfield" defaultValue="/usr/local/bin/python3" tooltip="">
 		<Label>path to python3</Label>
 	</Field>
 <Field id="infoLabelpythonPath" type="label"  alignText="right" fontSize="small" fontColor="darkgrey"> 
@@ -24,7 +24,7 @@ or    /usr/bin/python3                    for 11.x and later
    </Label> 
 	</Field>
 
-	<Field    id="everyxSecGetNewDevices"  	type="menue" defaultValue="300" tooltip="">
+	<Field    id="everyxSecGetNewDevices"  	type="menu" defaultValue="300" tooltip="">
 		<Label>how often for new apple TVs</Label>
 			<List>
 			<Option value="180"  >3 minutes</Option>
@@ -34,7 +34,7 @@ or    /usr/bin/python3                    for 11.x and later
 	</Field>
 
 
-	<Field    id="everyxSecGetPlaying"  	type="menue" defaultValue="20" tooltip="">
+	<Field    id="everyxSecGetPlaying"  	type="menu" defaultValue="20" tooltip="">
 		<Label>how often read the play status of the apple TVs</Label>
 			<List>
 			<Option value="5"   >5 secs</Option>
@@ -44,6 +44,7 @@ or    /usr/bin/python3                    for 11.x and later
 			<Option value="25"  >25 secs</Option>
 			</List>
 	</Field>
+
 
 	<Field id="simpleSeparator222" type="separator"/>
 
