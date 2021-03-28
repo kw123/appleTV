@@ -29,7 +29,7 @@ from checkIndigoPluginName import checkIndigoPluginName
 dataVersion = 0.1
 
 ## Static parameters, not changed in pgm
-_debugAreas					= [u"GetData",u"ReceiveData",u"Consumption",u"Basic",u"all",u"Special","Threads"]
+_debugAreas					= [u"GetData",u"ReceiveData",u"Consumption",u"Basic",u"all",u"Special","Threads","Action"]
 ################################################################################
 # noinspection PyUnresolvedReferences,PySimplifyBooleanCheck,PySimplifyBooleanCheck
 class Plugin(indigo.PluginBase):
@@ -280,6 +280,101 @@ class Plugin(indigo.PluginBase):
 			return (False, valuesDict, valuesDict)
 
 	####-----------------	 ---------
+	def printHelpMenu(self,  valuesDict, typeId):
+		out =  u"\n=================== HELP for appleTV plugin===========================  \n"
+		out += u"--------- credits  -----  \n"
+		out += u"This plugin is build on top of AVTpy by Postlund, see https://github.com/postlund/pyatv  \n"
+		out += u"  \n"
+		out += u"--------- STEPS to make it work -----  \n"
+		out += u"1. INSTALL X-CODE  \n"
+		out += u"xcode-select —install  \n"
+		out += u"  \n"
+		out += u"2. INSTALL PYTHON3 - if you don't have it on your mac (do not use home-brew)   \n"
+		out += u"go to eg https://www.python.org/downloads/release/python-392/  \n"
+		out += u"and download the 64 bit installer and install (all point and click)  \n"
+		out += u"  \n"
+		out += u"3.DOWNLOAD/INSTALL pyatv  \n"
+		out += u"pip3 install pyatv  \n"
+		out += u"  \n"
+		out += u"path to python either    /usr/local/bin/python3  for 10.14.x and earlier (w pip3 install)  \n"
+		out += u"                   or    /usr/bin/python3        for 11.x and later)  \n"
+		out += u"Try 'which python3' in a terminal window to check for path on your MAC)  \n"
+		out += u"  \n"
+		out += u"--------- what does it do  -----  \n"
+		out += u"1. it scan the local network for apple tvs with atvscript.py scan   \n"
+		out += u"2. then is lauchnes a listener for any change of channel, volum dev state etc and populate the indigo dev states accordingly   \n"
+		out += u"3. every xx minutes it will rescan - or you can manually fors a scan in plugin/menu  \n"
+		out += u"4. you can send predefined commands selectable from a list in menu or action to the apple TVs \n"
+		out += u"5. you can send  free text  commands in menu or action to the apple TVs see below for list \n"
+		out += u"6. you can set certain IP numbers to be ignored, change ip number / mac# of an apple device in device edit if that has changed \n"
+		out += u"-- not yet implemented: play music / video on apple TV. That requires to sync a pin between the apple TV and the plugin \n"
+		out += u"  \n"
+		out += u"--------- Possible things that can go wrong: -----  \n"
+		out += u"   dev state: 'Unclosed client session' or something like it  \n"
+		out += u"      try to use iphone remote app to connect to the appleTV. If that does not work a power cycle appleTV should fix it  \n"
+		out += u"  \n"
+		out += u"--------- available commands in menu and actions -----  \n"
+		out += u"Remote control commands:  \n"
+		out += u"   down - Press key down  \n"
+		out += u"   home - Press key home  \n"
+		out += u"   home_hold - Hold key home  \n"
+		out += u"   left - Press key left  \n"
+		out += u"   menu - Press key menu  \n"
+		out += u"   next - Press key next  \n"
+		out += u"   pause - Press key play  \n"
+		out += u"   play - Press key play  \n"
+		out += u"   play_pause - Toggle between play and pause  \n"
+		out += u"   previous - Press key previous  \n"
+		out += u"   right - Press key right  \n"
+		out += u"   select - Press key select  \n"
+		out += u"   set_position - Seek in the current playing media  \n"
+		out += u"   set_repeat - Change repeat state  \n"
+		out += u"   set_shuffle - Change shuffle mode to on or off  \n"
+		out += u"   skip_backward - Skip backwards a time interval  \n"
+		out += u"   skip_forward - Skip forward a time interval  \n"
+		out += u"   stop - Press key stop  \n"
+		out += u"   suspend - Suspend the device  \n"
+		out += u"   top_menu - Go to main menu (long press menu)  \n"
+		out += u"   up - Press key up  \n"
+		out += u"   volume_down - Press key volume down  \n"
+		out += u"   volume_up - Press key volume up  \n"
+		out += u"   delay=xxxx - Sleep for a certain amount in milliseconds  before next command eg when you send 2 or more commands \n"
+		out += u"Power commands:  \n"
+		out += u"   power_state - Return device power state  \n"
+		out += u"   turn_off - Turn device off  \n"
+		out += u"   turn_on - Turn device on \n"
+		out += u"Metadata commands:  - print result to log\n"
+		out += u"   app - Return information about current app playing something  \n"
+		out += u"   artwork - Return artwork for what is currently playing (or None)  \n"
+		out += u"   artwork_id - Return a unique identifier for current artwork  \n"
+		out += u"   device_id - Return a unique identifier for current device  \n"
+		out += u"   playing - Return what is currently playing   \n"
+		out += u"Playing commands:  - print result to log  \n"
+		out += u"   album - Album of the currently playing song  \n"
+		out += u"   artist - Artist of the currently playing song  \n"
+		out += u"   device_state - Device state, e.g. playing or paused  \n"
+		out += u"   genre - Genre of the currently playing song  \n"
+		out += u"   hash - Create a unique hash for what is currently playing  \n"
+		out += u"   media_type - Type of media is currently playing, e.g. video, music  \n"
+		out += u"   position - Position in the playing media (seconds)  \n"
+		out += u"   repeat - Repeat mode  \n"
+		out += u"   shuffle - If shuffle is enabled or not  \n"
+		out += u"   title - Title of the current media, e.g. movie or song name  \n"
+		out += u"   total_time - Total play time in seconds   \n"
+		out += u"Device commands:  \n"
+		out += u"   artwork_save - Download artwork and save it to artwork.png  \n"
+		out += u"   features - Print a list of all features and options  \n"
+		out += u"  \n"
+		out += u"--not implemented yet, need pairing --  \n"  
+		out += u"AirPlay commands:  \n" 
+		out += u"   play_url - Play media from an URL on the device   \n"
+		out += u"  \n"
+		out += u"===============================================================================  \n"
+
+		self.indiLOG.log(20,out)
+		return valuesDict
+
+	####-----------------	 ---------
 	def printConfigMenu(self,  valuesDict, typeId):
 		out =  u"\n=================== parameter, devices used, set ..==========================="
 		out += u"\nParameters -----------"
@@ -294,6 +389,7 @@ class Plugin(indigo.PluginBase):
 		self.indiLOG.log(20,out)
 		return valuesDict
 
+	
 	####-----------------	 ---------
 	def ignoreDevicesCALLBACK(self,  valuesDict, typeId):
 		try:
@@ -353,13 +449,31 @@ class Plugin(indigo.PluginBase):
 			cmd = [self.pathToPython3,self.pathToPlugin+"atvremote.py", "-i", dev.states["MAC"], cc[0]]
 			if cc[1] == "":
 				out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-				if self.decideMyLog(u"Special"): self.indiLOG.log(10,u"execCommandToAppleTVCALLBACK command:{}".format(cmd))
+				if self.decideMyLog(u"Action"): self.indiLOG.log(10,u"execCommandToAppleTVCALLBACK command:{}".format(cmd))
 			else:
 				out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()[0].strip()
-				if self.decideMyLog(u"Special"): self.indiLOG.log(10,u"execCommandToAppleTVCALLBACK ret from command:{}\n{}".format(cmd, out))
+				if self.decideMyLog(u"Action"): self.indiLOG.log(10,u"execCommandToAppleTVCALLBACK ret from command:{}\n{}".format(cmd, out))
 				retVal = {"PowerState.On":"on","PowerState.Off":"off"}
 				val = retVal.get(out,"")
 				self.fillScanIntoDevStates(dev, {cc[1]:val})
+		except	Exception, e:
+			if unicode(e).find(u"None") == -1:
+				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e) )
+			return  valuesDict
+		return  valuesDict
+
+	####-----------------	 ---------
+	def execCommandsToAppleTVCALLBACKaction(self, valuesDict, typeId):
+		return self.execCommandsToAppleTVCALLBACK(valuesDict.props,typeId)
+	####-----------------	 ---------
+	def execCommandsToAppleTVCALLBACK(self, valuesDict, typId):
+		try:
+			cc = valuesDict["command"]
+			dev = indigo.devices[int(valuesDict["appleTV"])]
+			cmd = [self.pathToPython3,self.pathToPlugin+"atvremote.py", "-i", dev.states["MAC"], cc]
+			if self.decideMyLog(u"Action"): self.indiLOG.log(10,u"execCommandToAppleTVCALLBACK  command:{}".format(cmd))
+			out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()[0]
+			self.indiLOG.log(20,u"action: {};  response:\n{}".format(cc, out))
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
 				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e) )

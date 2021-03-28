@@ -38,12 +38,30 @@
 					<Option value="up;"						>Press key up</Option>
 					<Option value="volume_down;"			>Press key volume down</Option>
 					<Option value="volume_up;"				>Press key volume up</Option>
-					<Option value="wakeup;"					>Wake up the device</Option>
-					<Option value="power_state;"			>Return device power state</Option>
 					<Option value="turn_off;"				>Turn device off</Option>
 					<Option value="turn_on;"				>Turn device on</Option>
+					<Option value="power_state;power_state"	>Return device power state</Option>
 				 </List>
 			</Field>
+        </ConfigUI>
+    </Action>
+   <Action id="sendCommands">
+        <Name>Send multiple commands to apple tv</Name>
+        <CallbackMethod>execCommandsToAppleTVCALLBACKaction</CallbackMethod>        
+		<ConfigUI>
+			<Field id="appleTV" type="menu" defaultValue="0" tooltip="select appleTV ">
+				<List class="self" filter="" method="filterAppleTV" dynamicReload="flase" />
+				<Label>select apple tv to send commands to:</Label>
+			</Field>
+
+			<Field id="command" type="textfield" defaultValue=""> 
+				<Label>enter commands</Label> 
+			</Field>
+
+			<Field id="infoLabelcommand" type="label"  alignText="right" fontSize="small" fontcolor="grey"> 
+					<Label>eg turn_on delay=1000 play volume_up, see print help for all commands</Label> 
+			</Field>
+
         </ConfigUI>
     </Action>
 

@@ -11,6 +11,16 @@
 
 		</ConfigUI>
 	</MenuItem>
+	<MenuItem id="printHelp">
+		<Name>PRINT help to logfile </Name>
+		<ConfigUI>
+				<Field id="printConfig" type="button"> 
+					<Label>PRINT Config parameters to logfile </Label> 
+					<Title>PRINT</Title><CallbackMethod>printHelpMenu</CallbackMethod>
+				</Field>
+
+		</ConfigUI>
+	</MenuItem>
 
 	<MenuItem id="getNewDevices">
 		<Name>Scan for new devices</Name>
@@ -43,7 +53,7 @@
 	</MenuItem>
 
 	<MenuItem id="sendCommand">
-		<Name>Send command to apple tv</Name>
+		<Name>Send Single command to apple tv</Name>
 		<ConfigUI>
 			<Field id="appleTV" type="menu" defaultValue="0" tooltip="select appleTV ">
 				<List class="self" filter="" method="filterAppleTV" dynamicReload="flase" />
@@ -76,7 +86,6 @@
 					<Option value="up;"						>Press key up</Option>
 					<Option value="volume_down;"			>Press key volume down</Option>
 					<Option value="volume_up;"				>Press key volume up</Option>
-					<Option value="wakeup;"					>Wake up the device</Option>
 					<Option value="turn_off;"				>Turn device off</Option>
 					<Option value="turn_on;"				>Turn device on</Option>
 					<Option value="power_state;power_state"	>Return device power state</Option>
@@ -85,6 +94,29 @@
 			<Field id="exec" type="button"> 
 				<Label>execute Command</Label> 
 				<Title>Execute</Title><CallbackMethod>execCommandToAppleTVCALLBACK</CallbackMethod>
+			</Field>
+		</ConfigUI>
+	</MenuItem>
+
+	<MenuItem id="sendCommands">
+		<Name>Send multiple commands to apple tv</Name>
+		<ConfigUI>
+			<Field id="appleTV" type="menu" defaultValue="0" tooltip="select appleTV ">
+				<List class="self" filter="" method="filterAppleTV" dynamicReload="flase" />
+				<Label>select apple tv to send command to:</Label>
+			</Field>
+
+			<Field id="command" type="textfield" defaultValue=""> 
+				<Label>enter commands </Label> 
+			</Field>
+
+			<Field id="infoLabelcommand" type="label"  alignText="right" fontSize="small" fontcolor="grey"> 
+					<Label>eg turn_on delay=1000 play volume_up see print help for all commands</Label> 
+				</Field>
+
+			<Field id="exec" type="button"> 
+				<Label>execute Command</Label> 
+				<Title>Execute</Title><CallbackMethod>execCommandsToAppleTVCALLBACK</CallbackMethod>
 			</Field>
 
 		</ConfigUI>

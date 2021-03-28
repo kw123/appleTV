@@ -54,6 +54,7 @@ Try "which python3" in a terminal window to check for path on your MAC
 	<Field    id="debugReceiveData"   type="checkbox"  defaultValue="false"    > <Label>... (2) receive Data:</Label>  </Field>
 	<Field    id="debugConsumption"   type="checkbox"  defaultValue="false"    > <Label>... (3) consumption of data:</Label>  </Field>
 	<Field    id="debugThreads"   	  type="checkbox"  defaultValue="false"    > <Label>... (4) Threads for listening to whats playing:</Label>  </Field>
+	<Field    id="debugAction"         type="checkbox"  defaultValue="false"   > <Label>... (5) Action comamnds and response:</Label>  </Field>
 	<Field    id="debugBasic"         type="checkbox"  defaultValue="false"    > <Label>... (10) basic:</Label>  </Field>
 	<Field    id="debugSpecial"       type="checkbox"  defaultValue="false"    > <Label>... (19) Special debug for development:</Label>  </Field>
 	<Field    id="debugall"           type="checkbox"  defaultValue="false"    > <Label>... (20) all of the above = everything:</Label>  </Field>

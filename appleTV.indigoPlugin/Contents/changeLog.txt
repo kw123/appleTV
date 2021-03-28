@@ -1,7 +1,14 @@
+changes in V 0.7.5@ 2021-03-28  
+==================    
+1.added free text commands - you can send several commands in one eg 'turn_on delay=1000 play'
+2.added print help menu command, gives a long list of how to install, how to use etc.
+
+
 changes in V 0.6.5@ 2021-03-28  
 ==================    
-1.internal changed atcscript to add mac, model, deep_sleep
+1.internal changed atvscript to add mac, model, deep_sleep
   no need for atvremote to run (have dropped xxxCredentials)
+
 
 changes in V 0.6.4@ 2021-03-28  
 ==================    
