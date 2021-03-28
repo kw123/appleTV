@@ -150,6 +150,9 @@ async def _scan_devices(loop, hosts):
                 "address": str(atv.address),
                 "identifier": atv.identifier,
                 "services": services,
+                "deep_sleep":atv.deep_sleep,
+                "MAC":atv.device_info.mac,
+                "device_info":str(atv.device_info),
             }
         )
     return output(True, values={"devices": atvs})

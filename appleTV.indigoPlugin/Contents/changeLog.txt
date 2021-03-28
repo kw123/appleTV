@@ -1,3 +1,8 @@
+changes in V 0.6.5@ 2021-03-28  
+==================    
+1.internal changed atcscript to add mac, model, deep_sleep
+  no need for atvremote to run (have dropped xxxCredentials)
+
 changes in V 0.6.4@ 2021-03-28  
 ==================    
 1. added 

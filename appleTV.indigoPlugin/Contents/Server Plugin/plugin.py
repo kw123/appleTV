@@ -133,11 +133,11 @@ class Plugin(indigo.PluginBase):
 					,u"MAC":  				u"MAC"
 					,u"model":				u"model"
 					,u"MRPPort": 			u"MRPPort"
-					,u"MRPCredentials":		u"MRPCredentials"
+					#,u"MRPCredentials":		u"MRPCredentials"
 					,u"AIRPLAYPort":		u"AIRPLAYPort"
-					,u"AIRPLAYCredentials":	u"AIRPLAYCredentials"
+					#,u"AIRPLAYCredentials":	u"AIRPLAYCredentials"
 					,u"DMAPPort":			u"DMAPPort"
-					,u"DMAPCredentials":	u"DMAPCredentials"
+					#,u"DMAPCredentials":	u"DMAPCredentials"
 					,u"identifier":			u"identifier"
 					}
 
@@ -719,17 +719,17 @@ class Plugin(indigo.PluginBase):
 				#if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========new dev {}, found:{}".format(ip, ipFound))
 
 				if not ipFound:
-					## if new fill some properties with atpremote,  scan does not get all parameters
+					## if new fill some properties with atvremote,  scan does not get all parameters
 					#if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========new dev doing remote.py {}".format(ip))
-					data2 = self.getatvremoteScan(ip=ip)
-					data[ip][u"MAC"] = ""
-					if ip in data2:
-						if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========getatvremoteScan result:{}".format(data2))
-						if u"MAC" 					in data2[ip]: 		data[ip][u"MAC"] 				= data2[ip][u"MAC"]
-						if u"MRPCredentials" 		in data2[ip]: 		data[ip][u"MRPCredentials"] 	= data2[ip][u"MRPCredentials"]
-						if u"AIRPLAYCredentials" 	in data2[ip]: 		data[ip][u"AIRPLAYCredentials"] = data2[ip][u"AIRPLAYCredentials"]
-						if u"DMAPCredentials" 		in data2[ip]: 		data[ip][u"DMAPCredentials"] = data2[ip][u"DMAPCredentials"]
-						if u"model" 				in data2[ip]: 		data[ip][u"model"] 				= data2[ip][u"model"]
+					if u"MAC" not in data[ip]: 
+						data[ip][u"MAC"] = ""
+					if False:
+						data2 = self.getatvremoteScan(ip=ip)
+						if ip in data2:
+							if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========getatvremoteScan result:{}".format(data2))
+							if u"MRPCredentials" 		in data2[ip]: 		data[ip][u"MRPCredentials"] 	= data2[ip][u"MRPCredentials"]
+							if u"AIRPLAYCredentials" 	in data2[ip]: 		data[ip][u"AIRPLAYCredentials"] = data2[ip][u"AIRPLAYCredentials"]
+							if u"DMAPCredentials" 		in data2[ip]: 		data[ip][u"DMAPCredentials"] 	= data2[ip][u"DMAPCredentials"]
 
 					## create new indigo device
 					devProps = {}
@@ -851,6 +851,9 @@ python3 atvscript.py scan
 						ip = device[u"address"]
 						retDict[ip]			= {}
 						if u"name" 			in device: retDict[ip][u"name"] 		= device[u"name"]
+						if u"MAC" 			in device: retDict[ip][u"MAC"] 			= device[u"MAC"]
+						if u"device_info" 	in device: retDict[ip][u"model"] 		= device[u"device_info"]
+						if u"deep_sleep" 	in device: retDict[ip][u"deep_sleep"] 	= device[u"deep_sleep"]
 						if u"identifier"	in device: retDict[ip][u"identifier"] 	= device[u"identifier"]
 						if u"services" in device:
 							for service in device[u"services"]:

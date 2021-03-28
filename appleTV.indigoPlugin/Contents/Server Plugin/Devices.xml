@@ -74,27 +74,11 @@
 					<ControlPageLabel>DMAPPort</ControlPageLabel>
 				</State>
 
-
-				<State id="DMAPCredentials">
-					<ValueType>string</ValueType>
-					<TriggerLabel>DMAPCredentials</TriggerLabel>
-					<ControlPageLabel>DMAPCredentials</ControlPageLabel>
-				</State>
-
-
 				<State id="MRPPort">
 					<ValueType>string</ValueType>
 					<TriggerLabel>MRPPort</TriggerLabel>
 					<ControlPageLabel>MRPPort</ControlPageLabel>
 				</State>
-
-
-				<State id="MRPCredentials">
-					<ValueType>string</ValueType>
-					<TriggerLabel>MRPCredentials</TriggerLabel>
-					<ControlPageLabel>MRPCredentials</ControlPageLabel>
-				</State>
-
 
 				<State id="AIRPLAYPort">
 					<ValueType>string</ValueType>
@@ -102,11 +86,6 @@
 					<ControlPageLabel>AIRPLAYPort</ControlPageLabel>
 				</State>
 
-				<State id="AIRPLAYCredentials">
-					<ValueType>string</ValueType>
-					<TriggerLabel>AIRPLAYCredentials</TriggerLabel>
-					<ControlPageLabel>AIRPLAYCredentials</ControlPageLabel>
-				</State>
 
 				<State id="model">
 					<ValueType>string</ValueType>
@@ -120,7 +99,6 @@
 					<TriggerLabel>deepSleep</TriggerLabel>
 					<ControlPageLabel>deepSleep</ControlPageLabel>
 				</State>
-
 
 				<State id="PowerState">
 					<ValueType>String</ValueType>
@@ -142,13 +120,11 @@
 					<ControlPageLabel>currentlyPlaying_DeviceState</ControlPageLabel>
 				</State>
 
-
 				<State id="currentlyPlaying_Title">
 					<ValueType>String</ValueType>
 					<TriggerLabel>currentlyPlaying_Title</TriggerLabel>
 					<ControlPageLabel>currentlyPlaying_Titlee</ControlPageLabel>
 				</State>
-
 
 				<State id="currentlyPlaying_Artist">
 					<ValueType>String</ValueType>
