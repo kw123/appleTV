@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <MenuItems>
 
-<!-->
 	<MenuItem id="printConfig">
 		<Name>PRINT parameters to logfile </Name>
 		<ConfigUI>
@@ -12,13 +11,32 @@
 
 		</ConfigUI>
 	</MenuItem>
--->
+
 	<MenuItem id="getNewDevices">
 		<Name>Scan for new devices</Name>
 		<ConfigUI>
 				<Field id="getNewDevices" type="button"> 
 					<Label>start scan for new devices</Label> 
 					<Title>Execute</Title><CallbackMethod>getNewDevicesCALLBACK</CallbackMethod>
+				</Field>
+
+		</ConfigUI>
+	</MenuItem>
+
+	<MenuItem id="IgnoreNewDevices">
+		<Name>(un)Ignore Devices</Name>
+		<ConfigUI>
+				<Field id="device" type="textfield" default=""> 
+					<Label>enter ip number of device to be (un)ignored</Label> 
+				</Field>
+
+				<Field id="IgnoreNewDevices" type="button"> 
+					<Label>Click to </Label> 
+					<Title>Ignore</Title><CallbackMethod>ignoreDevicesCALLBACK</CallbackMethod>
+				</Field>
+				<Field id="unIgnoreNewDevices" type="button"> 
+					<Label>Click to </Label> 
+					<Title>un-Ignore</Title><CallbackMethod>unignoreDevicesCALLBACK</CallbackMethod>
 				</Field>
 
 		</ConfigUI>

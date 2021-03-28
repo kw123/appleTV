@@ -23,6 +23,11 @@
 			<Field	  id="overwriteIP"			  type="textfield" >
 				<Label>overwrite IP number</Label>
 			</Field>
+
+			<Field	  id="overwriteMAC"			  type="textfield" >
+				<Label>overwrite MAC number</Label>
+			</Field>
+
 			<Field	  id="overwritePIN"			  type="textfield" >
 				<Label>overwrite PIN number</Label>
 			</Field>
@@ -62,6 +67,20 @@
 					<TriggerLabel>name</TriggerLabel>
 					<ControlPageLabel>name</ControlPageLabel>
 				</State>
+
+				<State id="DMAPPort">
+					<ValueType>string</ValueType>
+					<TriggerLabel>DMAPPort</TriggerLabel>
+					<ControlPageLabel>DMAPPort</ControlPageLabel>
+				</State>
+
+
+				<State id="DMAPCredentials">
+					<ValueType>string</ValueType>
+					<TriggerLabel>DMAPCredentials</TriggerLabel>
+					<ControlPageLabel>DMAPCredentials</ControlPageLabel>
+				</State>
+
 
 				<State id="MRPPort">
 					<ValueType>string</ValueType>

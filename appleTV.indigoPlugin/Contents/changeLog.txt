@@ -1,3 +1,10 @@
+changes in V 0.6.4@ 2021-03-28  
+==================    
+1. added 
+   print parameters and devices to logfile
+   (un)ignore devices ie ignore certain ip numbers
+
+
 changes in V 0.5.4@ 2021-03-28  
 ==================    
 1. some cleanup of code  

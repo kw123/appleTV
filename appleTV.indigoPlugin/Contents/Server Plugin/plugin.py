@@ -111,7 +111,7 @@ class Plugin(indigo.PluginBase):
 		indigo.server.log(  u"my PID                  {}".format(self.myPID))	 
 		indigo.server.log(  u"set params for indigo V {}".format(self.indigoVersion))	 
 
-		self.statesToATVMappping = {
+		self.statesToATVMapppingFromScan = {
 					 u"currentlyPlaying_MediaType":		u"media_type"
 					,u"currentlyPlaying_DeviceState":	u"device_state"
 					,u"currentlyPlaying_Title":  		u"title"
@@ -126,6 +126,19 @@ class Plugin(indigo.PluginBase):
 					,u"currentlyPlaying_App":			u"app"
 					,u"currentlyPlaying_AppId":			u"app_id"
 					,u"PowerState":						u"power_state"
+					}
+		self.statesToATVMapppingForNewDevs = {
+					 u"deepSleep":			u"deepSleep"
+					,u"name":				u"name"
+					,u"MAC":  				u"MAC"
+					,u"model":				u"model"
+					,u"MRPPort": 			u"MRPPort"
+					,u"MRPCredentials":		u"MRPCredentials"
+					,u"AIRPLAYPort":		u"AIRPLAYPort"
+					,u"AIRPLAYCredentials":	u"AIRPLAYCredentials"
+					,u"DMAPPort":			u"DMAPPort"
+					,u"DMAPCredentials":	u"DMAPCredentials"
+					,u"identifier":			u"identifier"
 					}
 
 
@@ -145,12 +158,15 @@ class Plugin(indigo.PluginBase):
 
 		self.pluginState 						= "init"
 		self.scanThreadsForPush 				= {}
-		self.updateStates						= {}
+		self.updateStatesAfterDevEditSave						= {}
 
 
 		self.debugLevel = []
 		for d in _debugAreas:
 			if self.pluginPrefs.get(u"debug"+d, False): self.debugLevel.append(d)
+
+
+		self.ignoreDevices						= json.loads(self.pluginPrefs.get("ignoreDevices","{}"))
 
 
 		self.everyxSecGetNewDevices				= float(self.pluginPrefs.get("everyxSecGetNewDevices",3600))
@@ -250,11 +266,13 @@ class Plugin(indigo.PluginBase):
 		try:
 			self.indiLOG.log(10,u"in valuesDict:{}; typeId:{}; devId:{}".format(valuesDict, typeId, devId) )
 			dev = indigo.devices[devId]
-			self.updateStates = {devId:{}}
+			self.updateStatesAfterDevEditSave = {devId:{}}
 			if valuesDict["overwritePIN"] != dev.states["pin"]:
-				self.updateStates[devId]["pin"] = valuesDict["overwritePIN"]
-			if valuesDict["overwriteIP"] != dev.states["ip"]:
-				self.updateStates[devId]["ip"] = valuesDict["overwriteIP"]
+				self.updateStatesAfterDevEditSave[devId]["pin"] = valuesDict["overwritePIN"]
+			if valuesDict["overwriteIP"] != dev.states["ip"] 	and self.isValidIP(valuesDict["overwriteIP"]):
+				self.updateStatesAfterDevEditSave[devId]["ip"] = valuesDict["overwriteIP"]
+			if valuesDict["overwriteMAC"] != dev.states["MAC"] and self.isValidMAC(valuesDict["overwriteMAC"]):
+				self.updateStatesAfterDevEditSave[devId]["MAC"] = valuesDict["overwriteMAC"]
 			return True, valuesDict
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
@@ -263,12 +281,53 @@ class Plugin(indigo.PluginBase):
 
 	####-----------------	 ---------
 	def printConfigMenu(self,  valuesDict, typeId):
+		out =  u"\n=================== parameter, devices used, set ..==========================="
+		out += u"\nParameters -----------"
+		out += u"\npath To python3            : {}".format(self.pathToPython3)
+		out += u"\ncheck for new devices every: {:.0f} minutes".format(self.everyxSecGetNewDevices/60)
+		out += u"\nDevices --------------"
+		for dev in indigo.devices.iter(u"props.isAppleTV"):
+			out += u"\n{}; id:{}; enabled:{}; ignored:{}".format(dev.name, dev.id, dev.enabled, dev.states["ip"] in self.ignoreDevices)
+			for key, value in dev.states.items():
+				out += u"\n    {:30s}: {}".format(key, value)
+		out += u"\n==============================================================================\n"
+		self.indiLOG.log(20,out)
 		return valuesDict
+
+	####-----------------	 ---------
+	def ignoreDevicesCALLBACK(self,  valuesDict, typeId):
+		try:
+			if "device" in valuesDict:
+				if self.isValidIP(valuesDict["device"]):
+					self.ignoreDevices[valuesDict["device"]] = True
+					self.pluginPrefs["ignoreDevices"] = json.dumps(self.ignoreDevices)
+		except	Exception, e:
+			if unicode(e).find(u"None") == -1:
+				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e) )
+			return (False, valuesDict, valuesDict)
+		return valuesDict
+
+	####-----------------	 ---------
+	def unignoreDevicesCALLBACK(self,  valuesDict, typeId):
+		try:
+			if "device" in valuesDict:
+				if self.isValidIP(valuesDict["device"]):
+					if valuesDict["device"] in self.ignoreDevices:
+						del self.ignoreDevices[valuesDict["device"]]
+						self.pluginPrefs["ignoreDevices"] = json.dumps(self.ignoreDevices)
+		except	Exception, e:
+			if unicode(e).find(u"None") == -1:
+				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e) )
+			return (False, valuesDict, valuesDict)
+		return valuesDict
+
+
 
 	####-----------------	 ---------
 	def getNewDevicesCALLBACK(self,  valuesDict, typeId):
 		self.lastGetNewDevices = 0
 		return valuesDict
+
 
 
 	####-----------------	 ---------
@@ -375,6 +434,7 @@ class Plugin(indigo.PluginBase):
 
 		try:
 			self.pluginState   = "stop"
+			self.pluginPrefs["ignoreDevices"] = json.dumps(self.ignoreDevices)
 			indigo.server.savePluginPrefs()	
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
@@ -386,13 +446,13 @@ class Plugin(indigo.PluginBase):
 	####-----------------	 ---------
 	def updateChangedStatesInDeviceEdit(self):
 		try:
-			if self.updateStates != {}:
-				for devId in self.updateStates:
-					if self.updateStates[int(devId)] != {}:
+			if self.updateStatesAfterDevEditSave != {}:
+				for devId in self.updateStatesAfterDevEditSave:
+					if self.updateStatesAfterDevEditSave[int(devId)] != {}:
 						dev = indigo.devices[devId]
-						for state in self.updateStates[int(devId)]:
+						for state in self.updateStatesAfterDevEditSave[int(devId)]:
 							if state == "ip":
-								newIp = self.updateStates[devId][state]
+								newIp = self.updateStatesAfterDevEditSave[devId][state]
 								oldIP = dev.states["ip"]
 								self.stopThreadsForPush(oldIP)
 								self.indiLOG.log(10,u"resetting ip:{} to new ip:{}".format(oldIP, newIp))
@@ -406,7 +466,10 @@ class Plugin(indigo.PluginBase):
 								dev.replacePluginPropsOnServer(props)
 								dev = indigo.devices[dev.id]
 								dev.updateStateOnServer(state, newIp )
-				self.updateStates  = {}
+							else:
+								dev.updateStateOnServer(state, self.updateStatesAfterDevEditSave[devId][state] )
+
+				self.updateStatesAfterDevEditSave  = {}
 
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
@@ -424,12 +487,13 @@ class Plugin(indigo.PluginBase):
 		
 			for dev in indigo.devices.iter(u"props.isAppleTV"):
 				if not dev.enabled:
-					self.stopThreadsForPush(dev.id, ip)
+					self.stopThreadsForPush(ip)
 				else:
 					ip = dev.states[u"ip"]
-					if ip not in self.scanThreadsForPush:
-						self.startThreadsForPush(dev.id, ip)
-						self.sleep(0.5)
+					if ip not in self.ignoreDevices:
+						if ip not in self.scanThreadsForPush:
+							self.startThreadsForPush(dev.id, ip)
+							self.sleep(0.5)
 
 			for ip in self.scanThreadsForPush:
 				try:
@@ -449,6 +513,7 @@ class Plugin(indigo.PluginBase):
 	####-----------------	 ---------
 	def startThreadsForPush(self, devId, ip):
 		try:
+			if ip in self.ignoreDevices: return 
 			if ip not in self.scanThreadsForPush:
 				self.scanThreadsForPush[ip] = {}
 				self.scanThreadsForPush[ip]["status"] = "starting"
@@ -493,6 +558,10 @@ class Plugin(indigo.PluginBase):
 			newlinesFromServer = ""
 			restartListenerAfterSecWithNoMessages = 600.
 			while True:
+				if ip in self.ignoreDevices:  
+					try:	self.killPidIfRunning(ip, function="push_updates")
+					except:	pass
+					return
 				# stop thread when asked to
 				if self.pluginState == "stop" or self.scanThreadsForPush[ip]["status"] == "stop": 
 					try:	self.killPidIfRunning(ip, function="push_updates")
@@ -510,7 +579,8 @@ class Plugin(indigo.PluginBase):
 
 				# restart the listener process 
 				if ListenProcessFileHandle == "" or self.scanThreadsForPush[ip]["status"] == "restart":
-					cmd = [self.pathToPython3,self.pathToPlugin+"atvscript.py","-s",ip,"push_updates"]
+					cmd = [self.pathToPython3, self.pathToPlugin+"atvscript.py","-s", ip, "push_updates"]
+					if self.decideMyLog(u"Threads"): self.indiLOG.log(10,"=== listenToDevices  ip:{}, (re)starting listener w cmd:{}".format(ip, cmd))
 					ListenProcessFileHandle = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 					msg = unicode(ListenProcessFileHandle.stderr)
 					if msg.find(u"open file") == -1:	# try this again
@@ -548,7 +618,7 @@ class Plugin(indigo.PluginBase):
 				## anything received?
 				if len(newlinesFromServer) < 3: continue
 
-				if self.decideMyLog(u"Threads"):self.indiLOG.log(10,"=== listenToDevices  ip:{}, json input:{}".format(ip, newlinesFromServer))
+				if self.decideMyLog(u"Threads"):self.indiLOG.log(10,"=== listenToDevices  ip:{}, newlines:{}".format(ip, newlinesFromServer))
 				## try tu onpack it 
 				try: 
 					""" when apple tv is off, then restart
@@ -633,9 +703,10 @@ class Plugin(indigo.PluginBase):
 			## first do a script request scan retruns a nice json	
 			data = self.getscriptScan()
 
-			if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========+++++ combined:{}".format(json.dumps(data, sort_keys=True, indent=2)))
+			if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========getNewDevices scan result:{}".format(json.dumps(data, sort_keys=True, indent=2)))
 
 			for ip in data:
+				if ip in self.ignoreDevices: continue
 				ipFound = False
 				for dev in indigo.devices.iter(u"props.isAppleTV"):
 					if u"ip" not in dev.states: continue
@@ -645,14 +716,19 @@ class Plugin(indigo.PluginBase):
 				if ipFound and not dev.enabled:
 					break
 
+				#if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========new dev {}, found:{}".format(ip, ipFound))
+
 				if not ipFound:
 					## if new fill some properties with atpremote,  scan does not get all parameters
+					#if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========new dev doing remote.py {}".format(ip))
 					data2 = self.getatvremoteScan(ip=ip)
+					data[ip][u"MAC"] = ""
 					if ip in data2:
-						if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========+++++ getatvremoteScan:{}".format(data2))
+						if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========getatvremoteScan result:{}".format(data2))
 						if u"MAC" 					in data2[ip]: 		data[ip][u"MAC"] 				= data2[ip][u"MAC"]
 						if u"MRPCredentials" 		in data2[ip]: 		data[ip][u"MRPCredentials"] 	= data2[ip][u"MRPCredentials"]
 						if u"AIRPLAYCredentials" 	in data2[ip]: 		data[ip][u"AIRPLAYCredentials"] = data2[ip][u"AIRPLAYCredentials"]
+						if u"DMAPCredentials" 		in data2[ip]: 		data[ip][u"DMAPCredentials"] = data2[ip][u"DMAPCredentials"]
 						if u"model" 				in data2[ip]: 		data[ip][u"model"] 				= data2[ip][u"model"]
 
 					## create new indigo device
@@ -664,8 +740,8 @@ class Plugin(indigo.PluginBase):
 					devProps[u"AllowOnStateChange"]			= False
 					devProps[u"AllowSensorValueChange"]		= False
 					devProps[u"overwriteIP"]				= ip
+					devProps[u"overwriteMAC"]				= data[ip][u"MAC"]
 					devProps[u"overwritePIN"]				= 1234
-					devProps[u"displayS"]					= u"currentlyPlaying_Title"
 					dev = indigo.device.create(
 					protocol =		 indigo.kProtocol.Plugin,
 					address =		 self.fixIP(ip),
@@ -678,10 +754,8 @@ class Plugin(indigo.PluginBase):
 					dev.updateStateOnServer(u"ip",ip)
 				## fille device states
 				chList =[]
-				for xx in [	u"deepSleep", u"name", u"MAC", u"model", u"identifier",
-							u"MRPPort", u"MRPCredentials", u"AIRPLAYPort", u"AIRPLAYCredentials",
-							]:
-					if self.checkIfChanged(xx, xx, dev.states, data[ip]): chList.append({u"key":xx, u"value":data[ip][xx]}) 
+				for key, val in self.statesToATVMapppingForNewDevs.items():
+					if self.checkIfChanged(key, val, dev.states, data[ip]): chList.append({u"key":key, u"value":data[ip][val]}) 
 				for ch in chList:
 					if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"{}:  change states {}".format(dev.name, ch))
 
@@ -700,11 +774,11 @@ class Plugin(indigo.PluginBase):
 	####-----------------	 ---------
 	def fillScanIntoDevStates(self, dev, data):
 		try:
-			if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"========= {} fillScanIntoDevStates:{}".format(dev.name, json.dumps(data, sort_keys=True, indent=2)))
+			if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========fillScanIntoDevStates  {} :{}".format(dev.name, json.dumps(data, sort_keys=True, indent=2)))
 			chList =[]
 
 			## only select changed states
-			for key, val in self.statesToATVMappping.items():
+			for key, val in self.statesToATVMapppingFromScan.items():
 				if self.checkIfChanged(key, val, dev.states, data): chList.append({u"key":key, u"value": "" if data[val] is None else data[val]}) 
 
 			if self.decideMyLog(u"Consumption"):
@@ -716,13 +790,13 @@ class Plugin(indigo.PluginBase):
 					chList.append({u"key":u"status", u"value":"failure", u"uiValue":data[u"error"]}) 
 					dev.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
 
-			elif self.statesToATVMappping["currentlyPlaying_DeviceState"] in data and data[self.statesToATVMappping["currentlyPlaying_DeviceState"]] == u"idle":
+			elif self.statesToATVMapppingFromScan["currentlyPlaying_DeviceState"] in data and data[self.statesToATVMapppingFromScan["currentlyPlaying_DeviceState"]] == u"idle":
 					dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOff)
-					chList.append({u"key":u"status", u"value":data[self.statesToATVMappping["currentlyPlaying_DeviceState"]], u"uiValue":data[self.statesToATVMappping["currentlyPlaying_DeviceState"]]}) 
+					chList.append({u"key":u"status", u"value":data[self.statesToATVMapppingFromScan["currentlyPlaying_DeviceState"]], u"uiValue":data[self.statesToATVMapppingFromScan["currentlyPlaying_DeviceState"]]}) 
 
-			elif self.statesToATVMappping["currentlyPlaying_DeviceState"] in data:
+			elif self.statesToATVMapppingFromScan["currentlyPlaying_DeviceState"] in data:
 					dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOn)
-					chList.append({u"key":u"status", u"value":data[self.statesToATVMappping["currentlyPlaying_DeviceState"]], u"uiValue":data[self.statesToATVMappping["currentlyPlaying_DeviceState"]]}) 
+					chList.append({u"key":u"status", u"value":data[self.statesToATVMapppingFromScan["currentlyPlaying_DeviceState"]], u"uiValue":data[self.statesToATVMapppingFromScan["currentlyPlaying_DeviceState"]]}) 
 
 			## now fill the states
 			dev.updateStatesOnServer(chList)
@@ -761,7 +835,7 @@ python3 atvscript.py scan
 		"""
 		try:
 			retDict = {}
-			cmd = [self.pathToPython3,self.pathToPlugin+"atvscript.py","scan"]
+			cmd = [self.pathToPython3, self.pathToPlugin+"atvscript.py", "scan"]
 			if self.decideMyLog(u"GetData"): self.indiLOG.log(10,u"=========getscriptScan cmd:{}".format(cmd))
 			out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
 			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========getscriptScan out:{}".format(out))
@@ -784,7 +858,7 @@ python3 atvscript.py scan
 									protocol = service[u"protocol"].upper()
 									if u"port" 	in service: 
 										retDict[ip][protocol+u"Port"] = service[u"port"]
-			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========+++++ retDict:{}".format(json.dumps(retDict, sort_keys=True, indent=2)))
+			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========getscriptScan dict:{}".format(json.dumps(retDict, sort_keys=True, indent=2)))
 			return retDict
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
@@ -825,13 +899,13 @@ Services:
 		try:
 			retDict = {}
 			if ip == "":
-				cmd = [self.pathToPython3,self.pathToPlugin+"atvremote.py","scan"]
+				cmd = [self.pathToPython3, self.pathToPlugin+"atvremote.py", "scan"]
 			else:
-				cmd = [self.pathToPython3,self.pathToPlugin+"atvremote.py","--scan-hosts",ip,"scan"]
+				cmd = [self.pathToPython3, self.pathToPlugin+"atvremote.py", "--scan-hosts", ip, "scan"]
 
 			if self.decideMyLog(u"GetData"): self.indiLOG.log(10,u"=========getatvremoteScan cmd:{}".format(cmd))
 			out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
-			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========+++++ getatvremoteScan\n{}".format(out[0]))
+			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"========= getatvremoteScan ret:\n{}".format(out[0]))
 			if out[0].find(u"Scan Results") 	== -1: return {}
 			if out[0].find(u"       Name: ") 	== -1: return {}
 			data = out[0].split(u"       Name: ")[1:]
@@ -866,7 +940,7 @@ Services:
 							jj =  hh.split(u": ")
 							retDict[ip][tag+jj[0]] = jj[1] 
 						
-			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========getatvremoteScan:{}".format(json.dumps(retDict, sort_keys=True, indent=2)))
+			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========getatvremoteScan dict:{}".format(json.dumps(retDict, sort_keys=True, indent=2)))
 			
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
