@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <MenuItems>
 
+<!-->
 	<MenuItem id="printConfig">
 		<Name>PRINT parameters to logfile </Name>
 		<ConfigUI>
@@ -11,8 +12,9 @@
 
 		</ConfigUI>
 	</MenuItem>
+-->
 	<MenuItem id="getNewDevices">
-		<Name>Get New Devices</Name>
+		<Name>Scan for new devices</Name>
 		<ConfigUI>
 				<Field id="getNewDevices" type="button"> 
 					<Label>start scan for new devices</Label> 

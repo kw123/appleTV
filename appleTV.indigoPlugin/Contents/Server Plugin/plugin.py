@@ -26,11 +26,10 @@ from checkIndigoPluginName import checkIndigoPluginName
 
 
 
-
 dataVersion = 0.1
 
 ## Static parameters, not changed in pgm
-_debugAreas					= [u"GetData",u"ReceiveData",u"Consumption",u"Basic",u"all",u"Special"]
+_debugAreas					= [u"GetData",u"ReceiveData",u"Consumption",u"Basic",u"all",u"Special","Threads"]
 ################################################################################
 # noinspection PyUnresolvedReferences,PySimplifyBooleanCheck,PySimplifyBooleanCheck
 class Plugin(indigo.PluginBase):
@@ -112,6 +111,23 @@ class Plugin(indigo.PluginBase):
 		indigo.server.log(  u"my PID                  {}".format(self.myPID))	 
 		indigo.server.log(  u"set params for indigo V {}".format(self.indigoVersion))	 
 
+		self.statesToATVMappping = {
+					 u"currentlyPlaying_MediaType":		u"media_type"
+					,u"currentlyPlaying_DeviceState":	u"device_state"
+					,u"currentlyPlaying_Title":  		u"title"
+					,u"currentlyPlaying_Artist":		u"artist"
+					,u"currentlyPlaying_Album": 		u"album"
+					,u"currentlyPlaying_Position":		u"position"
+					,u"currentlyPlaying_Repeat":		u"repeat"
+					,u"currentlyPlaying_Shuffle":		u"shuffle"
+					,u"currentlyPlaying_Repeat":		u"repeat"
+					,u"currentlyPlaying_TotalTime":		u"total_time"
+					,u"currentlyPlaying_Genre":			u"genre"
+					,u"currentlyPlaying_App":			u"app"
+					,u"currentlyPlaying_AppId":			u"app_id"
+					,u"PowerState":						u"power_state"
+					}
+
 
 		
 ####
@@ -127,12 +143,9 @@ class Plugin(indigo.PluginBase):
 		if not checkIndigoPluginName(self, indigo): 
 			exit() 
 
-
-		self.pythonPath					= u"/usr/bin/python2.6"
-		if os.path.isfile(u"/usr/bin/python2.7"):
-			self.pythonPath				= u"/usr/bin/python2.7"
-
-		self.pluginState == "init"
+		self.pluginState 						= "init"
+		self.scanThreadsForPush 				= {}
+		self.updateStates						= {}
 
 
 		self.debugLevel = []
@@ -140,18 +153,12 @@ class Plugin(indigo.PluginBase):
 			if self.pluginPrefs.get(u"debug"+d, False): self.debugLevel.append(d)
 
 
-		self.logFile		 	= ""
-		self.logFileActive	 	= self.pluginPrefs.get(u"logFileActive2", u"standard")
-		self.maxLogFileSize	 	= 1*1024*1024
-		self.lastCheckLogfile	= time.time()
-		self.updateStates		= {}
-		self.everyxSecGetPlaying 	= float(self.pluginPrefs.get("everyxSecGetPlaying",20))
-		self.everyxSecGetNewDevices	= float(self.pluginPrefs.get("everyxSecGetNewDevices",300))
-		self.pathToPython3 			= self.pluginPrefs.get("pathToPython3", "/usr/local/bin/python3")
-		self.indiLOG.log(20,  u"path To python3                {}".format(self.pathToPython3))
-		self.indiLOG.log(20,  u"check for new devices every    {:.0f} secs".format(self.everyxSecGetNewDevices))
-		self.indiLOG.log(20,  u"check for now plying  every    {:.0f} secs".format(self.everyxSecGetPlaying))
+		self.everyxSecGetNewDevices				= float(self.pluginPrefs.get("everyxSecGetNewDevices",3600))
+		self.everyxSeccheckIfThreadIsRunning	= 30
 
+		self.pathToPython3 						= self.pluginPrefs.get("pathToPython3", "/usr/local/bin/python3")
+		self.indiLOG.log(20,  u"path To python3                {}".format(self.pathToPython3))
+		self.indiLOG.log(20,  u"check for new devices every    {:.0f} minutes".format(self.everyxSecGetNewDevices/60))
 
 		return 
 
@@ -223,12 +230,12 @@ class Plugin(indigo.PluginBase):
 			for d in _debugAreas:
 				if valuesDict[u"debug"+d]: self.debugLevel.append(d)
 
-			self.everyxSecGetPlaying 	= float(valuesDict["everyxSecGetPlaying"])
-			self.everyxSecGetNewDevices	= float(valuesDict["everyxSecGetNewDevices"])
-			self.pathToPython3			= valuesDict["pathToPython3"]
-			self.indiLOG.log(20,  u"check for new devices every     {:.0f} secs".format(self.everyxSecGetNewDevices))
-			self.indiLOG.log(20,  u"check for now plying  every     {:.0f} secs".format(self.everyxSecGetPlaying))
-			self.indiLOG.log(20,  u"path To python3                 {}".format(self.everyxSecGetPlaying))
+			try: 	self.everyxSecGetNewDevices				= float(valuesDict["everyxSecGetNewDevices"])
+			except: valuesDict["everyxSecGetNewDevices"] 	= unicode(int(self.everyxSecGetNewDevices))
+			self.pathToPython3						= valuesDict["pathToPython3"]
+
+			self.indiLOG.log(20,  u"check for new devices every     {:.0f} minutes".format(self.everyxSecGetNewDevices/60))
+			self.indiLOG.log(20,  u"path To python3                 {}".format(self.pathToPython3))
 
 
 			return True, valuesDict
@@ -304,16 +311,16 @@ class Plugin(indigo.PluginBase):
 		indigo.server.savePluginPrefs()
 		self.pluginStartTime 	= time.time()
 
-		self.lastGetPlaying 	= 0
 		self.lastGetNewDevices	= 0
+		self.lastcheckIfThreadIsRunning = 0
 		self.loopCount 			= 0
 
 		try:
 			while True:
 				self.loopCount +=1
-				self.indiLOG.log(10,u"in loop #{}".format(self.loopCount))
+				if self.decideMyLog(u"Basic"):self.indiLOG.log(10,u"in loop #{}".format(self.loopCount))
 				self.getNewDevices()
-				self.getPlaying()
+				self.checkIfThreadIsRunning()
 	
 				for ii in range(10):
 					self.updateChangedStatesInDeviceEdit()
@@ -336,13 +343,232 @@ class Plugin(indigo.PluginBase):
 					if self.updateStates[int(devId)] != {}:
 						dev = indigo.devices[devId]
 						for state in self.updateStates[int(devId)]:
-							dev.updateStateOnServer(state, self.updateStates[devId][state] )
+							if state == "ip":
+								newIp = self.updateStates[devId][state]
+								oldIP = dev.states["ip"]
+								self.scanThreadsForPush[oldIP]["status"] = "stop"
+								self.indiLOG.log(10,u"resetting ip:{} to new ip:{}".format(oldIP, newIp))
+								self.stopThreadsForPush(oldIP)
+								self.sleep(5) # wait for old tyhread to stop, then delete reference to it 
+								del self.scanThreadsForPush[oldIP]
+								self.startThreadsForPush(dev.id, newIp)
+								# update state and address with new IP
+								props = dev.pluginProps
+								props["address"] = self.fixIP(newIp)
+								dev.replacePluginPropsOnServer(props)
+								dev = indigo.devices[dev.id]
+								dev.updateStateOnServer(state, newIp )
 				self.updateStates  = {}
 
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
 				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
 		return 
+
+
+	####-----------------	 ---------
+	def checkIfThreadIsRunning(self, force=False):
+
+		try:
+			if time.time() - self.lastcheckIfThreadIsRunning < self.everyxSeccheckIfThreadIsRunning and not Force: return
+
+			self.lastcheckIfThreadIsRunnings = time.time()
+		
+			for dev in indigo.devices.iter(u"props.isAppleTV"):
+				if not dev.enabled:
+					self.stopThreadsForPush(dev.id, ip)
+				else:
+					ip = dev.states[u"ip"]
+					if ip not in self.scanThreadsForPush:
+						self.startThreadsForPush(dev.id, ip)
+						self.sleep(0.5)
+
+			for ip in self.scanThreadsForPush:
+				try:
+					indigo.devices[int(self.scanThreadsForPush[ip]["devId"])]
+				except:
+					self.scanThreadsForPush[ip]["status"] = "stop"
+					
+
+		except	Exception, e:
+			if unicode(e).find(u"None") == -1:
+				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
+		return 
+				
+
+
+
+	####-----------------	 ---------
+	def startThreadsForPush(self, devId, ip):
+		try:
+			if ip not in self.scanThreadsForPush:
+				self.scanThreadsForPush[ip] = {}
+				self.scanThreadsForPush[ip]["status"] = "starting"
+				self.scanThreadsForPush[ip]["devId"] = devId
+				self.scanThreadsForPush[ip]["thread"] = threading.Thread(name=u'listenToDevices', target=self.listenToDevices, args=(ip,devId,))
+				self.scanThreadsForPush[ip]["thread"].start()
+			else:
+				self.indiLOG.log(10,u"startThreadsForPush ip{}, already defined, check if exist, status:{}".format(ip, self.scanThreadsForPush[ip]["status"] ))
+				if self.scanThreadsForPush[ip]["status"] != "started":
+					self.indiLOG.log(10,u"startThreadsForPush ip{}, already defined, re-launching".format(ip))
+					self.scanThreadsForPush[ip]["status"] = "starting"
+					self.scanThreadsForPush[ip]["devId"] = devId
+					self.scanThreadsForPush[ip]["thread"] = threading.Thread(name=u'listenToDevices', target=self.listenToDevices, args=(ip,devId,))
+					self.scanThreadsForPush[ip]["thread"].start()
+
+				
+		except	Exception, e:
+			if unicode(e).find(u"None") == -1:
+				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
+		return 
+
+	####-----------------	 ---------
+	def stopThreadsForPush(self, ip):
+		try:
+				if ip not in self.scanThreadsForPush: return 
+				self.scanThreadsForPush[ip]["status"] = "stop"
+		except	Exception, e:
+			if unicode(e).find(u"None") == -1:
+				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
+		return 
+
+
+	####-----------------	 ---------
+	def listenToDevices(self, ip, devId):
+
+		try:
+
+			self.scanThreadsForPush[ip]["status"] = "started"
+			self.scanThreadsForPush[ip]["lastRead"] = time.time()
+			ListenProcessFileHandle = ""
+			msgSleep = 1
+			newlinesFromServer = ""
+			restartListenerAfterSecWithNoMessages = 600.
+			while True:
+				if self.pluginState == "stop" or self.scanThreadsForPush[ip]["status"] == "stop": 
+					try:	self.killPidIfRunning(ip, function="push_updates")
+					except:	pass
+					break
+				self.sleep(msgSleep)
+				msgSleep = min(0.5,msgSleep)
+
+				if time.time() - self.scanThreadsForPush[ip]["lastRead"] > restartListenerAfterSecWithNoMessages:
+					try:	self.killPidIfRunning(ip, function="push_updates" )
+					except:	pass
+					ListenProcessFileHandle = ""
+					self.sleep(5)
+
+				if ListenProcessFileHandle == "" or self.scanThreadsForPush[ip]["status"] == "restart":
+					cmd = [self.pathToPython3,self.pathToPlugin+"atvscript.py","-s",ip,"push_updates"]
+					ListenProcessFileHandle = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+					msg = unicode(ListenProcessFileHandle.stderr)
+					if msg.find(u"open file") == -1:	# try this again
+						self.indiLOG.log(40,u"IP#: {}; error connecting {}".formaat(ip, msg) )
+						self.sleep(20)
+						ListenProcessFileHandle = ""
+						continue
+					flags = fcntl.fcntl(ListenProcessFileHandle.stdout, fcntl.F_GETFL)  # get current p.stdout flags
+					fcntl.fcntl(ListenProcessFileHandle.stdout, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+					if self.decideMyLog(u"Threads"): self.indiLOG.log(10,"=== listenToDevices  ip:{}, (re)started listener".format(ip))
+					self.scanThreadsForPush[ip]["lastRead"] = time.time()
+				if ListenProcessFileHandle == "": continue 
+
+				try: 
+					lfs = ""
+					lfs = os.read(ListenProcessFileHandle.stdout.fileno(),4096).decode(u"utf8") 
+					newlinesFromServer += unicode(lfs) 
+					if newlinesFromServer != "":
+						self.scanThreadsForPush[ip]["alive"] = time.time()
+					else: continue
+				except	Exception, e:
+					if unicode(e).find(u"[Errno 35]") == -1:	 # "Errno 35" is the normal response if no data, if other error stop and restart
+						if unicode(e).find(u"None") == -1:
+							out = u"os.read(ListenProcessFileHandle.stdout.fileno())  in Line {} has error={}\n ip:{}  type: {}".format(sys.exc_traceback.tb_lineno, e, ipNumber,uType )
+							try: out+= u"fileNo: {}".format(ListenProcessFileHandle.stdout.fileno() )
+							except: pass
+							if unicode(e).find(u"[Errno 22]") > -1:  # "Errno 22" is  general read error "wrong parameter"
+								out+= u"\n ..      try lowering/increasing read buffer parameter in config" 
+								if self.decideMyLog(u"Threads"):self.indiLOG.log(30,out)
+							else:
+								if self.decideMyLog(u"Threads"):self.indiLOG.log(40,out)
+								if self.decideMyLog(u"Threads"):self.indiLOG.log(40,lfs)
+				if len(newlinesFromServer) < 3: continue
+
+				if self.decideMyLog(u"Threads"):self.indiLOG.log(10,"=== listenToDevices  ip:{}, json input:{}".format(ip, newlinesFromServer))
+				try: 
+					""" when apple tv is off, then restart
+					{"result": "failure", "datetime": "2021-03-27T15:04:37.495967-05:00", "exception": "[Errno 60] Operation timed out", "stacktrace": "Traceback (most recent call last):\n  File \"/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/asyncio/selector_events.py\", line 856, in _read_ready__data_received\n    data = self._sock.recv(self.max_size)\nTimeoutError: [Errno 60] Operation timed out\n", "connection": "lost"}
+					{"result": "success", "datetime": "2021-03-27T15:04:37.500189-05:00", "push_updates": "finished"}
+					{"result": "failure", "datetime": "2021-03-27T15:04:37.517832-05:00", "error": "Task was destroyed but it is pending!"}
+					"""
+					lines = (newlinesFromServer.strip("\n")).split("\n")
+					for line in lines:
+						#self.indiLOG.log(10,"=== listenToDevices  items:{}".format(xx))
+						js = json.loads(line)
+						#if self.decideMyLog(u"Threads"):self.indiLOG.log(20,"=== listenToDevices  ip:{},  1:{}".format(ip, "connection"  in js and js["connection"]  == "closed"))
+						#if self.decideMyLog(u"Threads"):self.indiLOG.log(20,"=== listenToDevices  ip:{},  1:{}".format(ip, u"error"  	 in js and js[u"error"] 	 == u"device_not_found"))
+						#if self.decideMyLog(u"Threads"):self.indiLOG.log(20,"=== listenToDevices  ip:{},  1:{}".format(ip, u"connection" in js and js[u"connection"] == u"lost"))
+						#if self.decideMyLog(u"Threads"):self.indiLOG.log(20,"=== listenToDevices  ip:{},  1:{}".format(ip, u"exception"  in js and js[u"exception"].find(u"timed out") >-1))
+						if ( ( "connection"  in js and js["connection"]  == "closed") 				or
+							 ( u"error"  	 in js and js[u"error"] 	 == u"device_not_found") 	or 
+							 ( u"connection" in js and js[u"connection"] == u"lost") 				or
+							 ( u"exception"  in js and js[u"exception"].find(u"timed out") >-1)  
+							):
+							if self.decideMyLog(u"Threads"):self.indiLOG.log(10,"=== listenToDevices  ip:{}, connection lost:{}".format(ip, newlinesFromServer))
+							try:	self.killPidIfRunning(ip, function="push_updates")
+							except:	pass
+							ListenProcessFileHandle = "" # == restart
+							msgSleep = 5
+						self.fillScanIntoDevStates(indigo.devices[devId],js )
+						newlinesFromServer = ""
+						self.scanThreadsForPush[ip]["lastRead"] = time.time()
+				except	Exception, e:
+					if unicode(e).find(u"None") == -1:
+						self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
+		
+
+		except	Exception, e:
+			if unicode(e).find(u"None") == -1:
+				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
+
+
+
+	####-----------------	 ---------
+	def killPidIfRunning(self, ip, function=""):
+		if function =="":
+			cmd = "ps -ef | grep '/atvscript.py' | grep '"+ip+"' | grep -v grep"
+		else:
+			cmd = "ps -ef | grep '/atvscript.py' | grep '"+ip+"' | grep '"+function+"' | grep -v grep"
+
+		#if self.decideMyLog(u"Threads"): self.indiLOG.log(10,u"killing request,  for ip:{}".format(ip))
+		ret = subprocess.Popen( cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True).communicate()[0]
+		#if self.decideMyLog(u"Threads"): self.indiLOG.log(10,u"killing   ret:{}".format(ret))
+
+		if len(ret) < 5:
+			return
+
+		lines = ret.split("\n")
+		for line in lines:
+			if len(line) < 5:
+				continue
+
+			items = line.split()
+			if len(items) < 5:
+				continue
+
+			pidInLine = items[1]
+			try:
+				cmd = "/bin/kill -9 "+pidInLine
+				#if self.decideMyLog(u"Threads"): self.indiLOG.log(10,u"killing "  +pidInLine+":\n"+line )
+				ret = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True).communicate()
+			except	Exception, e:
+				if unicode(e).find(u"None") == -1:
+					self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
+
+			break
+
+		return
+
 
 	####-----------------	 ---------
 	def getNewDevices(self):
@@ -363,8 +589,11 @@ class Plugin(indigo.PluginBase):
 					if dev.states[u"ip"] == ip:
 						ipFound = True
 						break
+				if ipFound and not dev.enabled:
+					break
+
 				if not ipFound:
-					data2 = self.getatvremoteScan()
+					data2 = self.getatvremoteScan(ip=ip)
 					if ip in data2:
 						if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========+++++ getatvremoteScan:{}".format(data2))
 						data[ip][u"MAC"] 				= data2[ip][u"MAC"]
@@ -384,7 +613,7 @@ class Plugin(indigo.PluginBase):
 					devProps[u"displayS"]					= u"currentlyPlaying_Title"
 					dev = indigo.device.create(
 					protocol =		 indigo.kProtocol.Plugin,
-					address =		 ip,
+					address =		 self.fixIP(ip),
 					name =			 "appletv_" + ip,
 					description =	 data[ip][u"name"],
 					pluginId =		 self.pluginId,
@@ -393,57 +622,50 @@ class Plugin(indigo.PluginBase):
 					#folder =		 self.folderNameIDSystemID,
 					dev.updateStateOnServer(u"ip",ip)
 				chList =[]
-				for xx in [u"currentlyPlaying_MediaType",u"currentlyPlaying_DeviceState",u"currentlyPlaying_Title",  u"currentlyPlaying_Artist", 
-							u"currentlyPlaying_Album",   u"currentlyPlaying_Position",   u"currentlyPlaying_Repeat", u"currentlyPlaying_Shuffle",
-							u"deepSleep", u"name", u"MAC", u"model", u"identifier",
+				for xx in [	u"deepSleep", u"name", u"MAC", u"model", u"identifier",
 							u"MRPPort", u"MRPCredentials", u"AIRPLAYPort", u"AIRPLAYCredentials",
-							u"currentlyPlaying_TotalTime"
 							]:
-					if self.checkIfChanged(xx, dev.states, data[ip]): chList.append({u"key":xx, u"value":data[ip][xx]}) 
+					if self.checkIfChanged(xx, xx, dev.states, data[ip]): chList.append({u"key":xx, u"value":data[ip][xx]}) 
 				for ch in chList:
-					if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"in ch {} ".format(ch))
+					if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"{}:  change states {}".format(dev.name, ch))
 
 				dev.updateStatesOnServer(chList)
+				if not ipFound:
+					if ip in self.scanThreadsForPush[ip]:
+						self.stopThreadsForPush(ip)
+						self.sleep(4)
+					self.startThreadsForPush(dev.id, ip)
+
 
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
 				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
-
 	####-----------------	 ---------
-	def getPlaying(self):
-		try: 
-			if time.time() - self.lastGetPlaying < self.everyxSecGetPlaying: return
-			self.lastGetPlaying = time.time()
+	def fillScanIntoDevStates(self, dev, data):
+		try:
+			if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"========= {} combined:{}".format(dev.name, json.dumps(data, sort_keys=True, indent=2)))
+			chList =[]
 
-			for dev in indigo.devices.iter(u"props.isAppleTV"):
-				ip = dev.states[u"ip"]
-				identifier = dev.states[u"identifier"]
-				data = self.getscriptPlaying(identifier)
-				if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========+++++ combined:{}".format(json.dumps(data, sort_keys=True, indent=2)))
+			for key, val in self.statesToATVMappping.items():
+				if self.checkIfChanged(key, val, dev.states, data): chList.append({u"key":key, u"value": "" if data[val] is None else data[val]}) 
 
-				chList =[]
-				for xx in [u"currentlyPlaying_MediaType",u"currentlyPlaying_DeviceState",u"currentlyPlaying_Title",  u"currentlyPlaying_Artist", 
-							u"currentlyPlaying_Album",   u"currentlyPlaying_Position",   u"currentlyPlaying_Repeat", u"currentlyPlaying_Shuffle",
-							u"deepSleep", u"name", u"MAC", u"model", u"identifier",
-							u"MRPPort", u"MRPCredentials", u"AIRPLAYPort", u"AIRPLAYCredentials",
-							u"currentlyPlaying_TotalTime"
-							]:
-					if self.checkIfChanged(xx, dev.states, data): chList.append({u"key":xx, u"value":data[xx]}) 
-				for ch in chList:
-					if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"in ch {} ".format(ch))
+			for ch in chList:
+				if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"{}  change states {}".format(dev.name,ch))
 
-				# set status 
-				if "result" in data and data["result"] == "failure":
-						chList.append({u"key":u"status", u"value":"failure", u"uiValue":u"failure"}) 
-						dev.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
-				elif "currentlyPlaying_DeviceState" in data and data[u"currentlyPlaying_DeviceState"] == u"idle":
-						dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOff)
-						chList.append({u"key":u"status", u"value":data[u"currentlyPlaying_DeviceState"], u"uiValue":data[u"currentlyPlaying_DeviceState"]}) 
-				elif "currentlyPlaying_DeviceState" in data:
-						dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOn)
-						chList.append({u"key":u"status", u"value":data["currentlyPlaying_DeviceState"], u"uiValue":data[u"currentlyPlaying_DeviceState"]}) 
+			# set status 
+			if "result" in data and data["result"] == "failure" and "error" in data:
+					chList.append({u"key":u"status", u"value":"failure", u"uiValue":data[u"error"]}) 
+					dev.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
 
-				dev.updateStatesOnServer(chList)
+			elif self.statesToATVMappping["currentlyPlaying_DeviceState"] in data and data[self.statesToATVMappping["currentlyPlaying_DeviceState"]] == u"idle":
+					dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOff)
+					chList.append({u"key":u"status", u"value":data[self.statesToATVMappping["currentlyPlaying_DeviceState"]], u"uiValue":data[self.statesToATVMappping["currentlyPlaying_DeviceState"]]}) 
+
+			elif self.statesToATVMappping["currentlyPlaying_DeviceState"] in data:
+					dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOn)
+					chList.append({u"key":u"status", u"value":data[self.statesToATVMappping["currentlyPlaying_DeviceState"]], u"uiValue":data[self.statesToATVMappping["currentlyPlaying_DeviceState"]]}) 
+
+			dev.updateStatesOnServer(chList)
 
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
@@ -451,13 +673,14 @@ class Plugin(indigo.PluginBase):
 		return 
 
 
+
 	####-----------------	 ---------
-	def checkIfChanged(self, state, Current, New):
+	def checkIfChanged(self, state, atvstate, Current, New):
 		try:
-			if state not in New or  state not in Current: return False
-			if New[state] is None: return False
+			if atvstate not in New or  state not in Current: return False
 			#self.indiLOG.log(10,u" state:{}, ==:{}  {} -- {}".format(state, New[state] == Current[state], New[state], Current[state]))
-			if New[state] != Current[state]: return True
+			NewVal = "" if New[atvstate] is None else New[atvstate]
+			if NewVal != Current[state]: 					return True
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
 				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
@@ -510,7 +733,7 @@ python3 atvscript.py scan
 		return {}
 
 	####-----------------	 ---------
-	def getatvremoteScan(self):
+	def getatvremoteScan(self, ip=""):
 		"""
 python3 atvremote.py scan
 Scan Results
@@ -541,7 +764,11 @@ Services:
 		"""
 		try:
 			retDict = {}
-			cmd = [self.pathToPython3,self.pathToPlugin+"atvremote.py","scan"]
+			if ip == "":
+				cmd = [self.pathToPython3,self.pathToPlugin+"atvremote.py","scan"]
+			else:
+				cmd = [self.pathToPython3,self.pathToPlugin+"atvremote.py","--scan-hosts",ip,"scan"]
+
 			if self.decideMyLog(u"GetData"): self.indiLOG.log(10,u"=========getatvremoteScan cmd:{}".format(cmd))
 			out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
 			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========+++++ getatvremoteScan\n{}".format(out[0]))
@@ -583,111 +810,6 @@ Services:
 				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
 		return retDict
 
-
-	####-----------------	 ---------
-	def getscriptPlaying(self, id):
-		"""
-python3 atvscript.py -i '0721B1F4-4CE5-4EA7-86B7-BE4F2FCAAA30' playing
-{"result": "success", "datetime": "2021-03-26T12:06:31.555020-05:00", "hash": "D94143CC-6E1A-4DF6-99BB-9193B32C1BFD", 
-"media_type": "unknown", 
-"device_state": "playing", 
-"title": "CNN Newsroom With Brianna Keilar", 
-"artist": "CNN", 
-"album": null, 
-"genre": null, 
-"total_time": 50400, 
-"position": 46896, 
-"shuffle": "off", 
-"repeat": "off", 
-"app": "YouTube TV", 
-"app_id": "com.google.ios.youtubeunplugged"}		"""
-		try:
-			retDict = {}
-			cmd = [self.pathToPython3,self.pathToPlugin+"atvscript.py","-i",id,"playing"]
-			if self.decideMyLog(u"GetData"): self.indiLOG.log(10,u"=========getscriptPlaying cmd:{}".format(cmd))
-			out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
-			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========getscriptPlaying return\n{}".format(out[0]))
-			if len(out[0]) < 5:		return retDict
-			data = json.loads(out[0])
-			if u"result" not  in data:	return retDict
-			retDict[u"result"] = data[u"result"]
-			if data[u"result"] != u"success": return retDict
-
-			if u"media_type" 	in data: retDict[u"currentlyPlaying_MediaType"] 	= data[u"media_type"]
-			if u"device_state" 	in data: retDict[u"currentlyPlaying_DeviceState"]	= data[u"device_state"]
-			if u"title"			in data: retDict[u"currentlyPlaying_Title"] 		= data[u"title"]
-			if u"artist" 		in data: retDict[u"currentlyPlaying_Artist"] 		= data[u"artist"]
-			if u"album" 		in data: retDict[u"currentlyPlaying_Album"] 		= data[u"album"]
-			if u"total_time" 	in data: retDict[u"currentlyPlaying_TotalTime"] 	= data[u"total_time"]
-			if u"position" 		in data: retDict[u"currentlyPlaying_Position"] 		= data[u"position"]
-			if u"repeat" 		in data: retDict[u"currentlyPlaying_Repeat"] 		= data[u"repeat"]
-			if u"shuffle" 		in data: retDict[u"currentlyPlaying_Shuffle"] 		= data[u"shuffle"]
-			if u"app" 			in data: retDict[u"currentlyPlaying_app"] 			= data[u"app"]
-			if u"app_id" 		in data: retDict[u"currentlyPlaying_appId"] 		= data[u"app_id"]
-			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========getscriptPlaying retDict:{}".format(json.dumps(retDict, sort_keys=True, indent=2)))
-
-		except	Exception, e:
-			if unicode(e).find(u"None") == -1:
-				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
-				if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========getscriptScan out[1]:{}".format(out[1]))
-		return retDict
-
-
-
-	####-----------------	 ---------
-	def getauto_connect(self):
-		"""
-python3 auto_connect.py scan
-Discovering devices on network...
-Connecting to 192.168.1.48
-Currently playing:
-  Media type: Unknown
-Device state: Paused
-       Title: CNN Tonight With Don Lemon
-      Artist: CNN
-       Album: 
-    Position: 50738/52200s (97.2%)
-      Repeat: Off
-     Shuffle: Off
-Connecting to 192.168.1.47
-Currently playing:
-  Media type: Unknown
-Device state: Paused
-       Title: PBS NewsHour
-      Artist: KERA
-       Album: 
-    Position: 46805/50400s (92.9%)
-      Repeat: Off
-     Shuffle: Off
-		"""
-		try:
-			retDict = {}
-			cmd = [self.pathToPython3,self.pathToPlugin+"auto_connect.py","scan"]
-			if self.decideMyLog(u"GetData"): self.indiLOG.log(10,u"=========getauto_connect cmd:{}".format(cmd))
-			out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
-			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========getauto_connect return\n{}".format(cmd, out[0]))
-			if out[0].find(u"Connecting to ") 	== -1: return {}
-			data = out[0].split(u"Connecting to ")[1:]
-			for section in data:
-				theItems = section.split("\n")
-				ip		 			= theItems[0]
-				retDict[ip] = {}
-				if u"Media type: " 	in section: retDict[ip][u"currentlyPlaying_MediaType"] 		= section.split(u"Media type: ")[1].split("\n")[0].strip()
-				if u"Device state:"	in section: retDict[ip][u"currentlyPlaying_DeviceState"]	= section.split(u"Device state: ")[1].split("\n")[0].strip()
-				if u"Title: "		in section: retDict[ip][u"currentlyPlaying_Title"] 			= section.split(u"Title: ")[1].split("\n")[0].strip()
-				if "Artist: " 		in section: retDict[ip][u"currentlyPlaying_Artist"] 		= section.split(u"Artist: ")[1].split("\n")[0].strip()
-				if u"Album: " 		in section: retDict[ip][u"currentlyPlaying_Album"] 			= section.split(u"Album: ")[1].split("\n")[0].strip()
-				if u"Position: " 	in section: retDict[ip][u"currentlyPlaying_Position"] 		= section.split(u"Position: ")[1].split("\n")[0].strip()
-				if u"Repeat: " 		in section: retDict[ip][u"currentlyPlaying_Repeat"] 		= section.split(u"Repeat: ")[1].split("\n")[0].strip()
-				if u"Shuffle: " 	in section: retDict[ip][u"currentlyPlaying_Shuffle"] 		= section.split(u"Shuffle: ")[1].split("\n")[0].strip()
-			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========+++++ retDict:{}".format(json.dumps(retDict, sort_keys=True, indent=2)))
-
-
-
-		except	Exception, e:
-			if unicode(e).find(u"None") == -1:
-				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
-		return retDict
 
 
 	def postLoop(self):

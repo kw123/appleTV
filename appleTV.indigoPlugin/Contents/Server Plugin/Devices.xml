@@ -103,6 +103,13 @@
 				</State>
 
 
+				<State id="PowerState">
+					<ValueType>String</ValueType>
+					<TriggerLabel>PowerState</TriggerLabel>
+					<ControlPageLabel>PowerState</ControlPageLabel>
+				</State>
+
+
 				<State id="currentlyPlaying_MediaType">
 					<ValueType>String</ValueType>
 					<TriggerLabel>currentlyPlaying_MediaType</TriggerLabel>
@@ -136,6 +143,12 @@
 					<ControlPageLabel>currentlyPlaying_Album</ControlPageLabel>
 				</State>
 
+				<State id="currentlyPlaying_Genre">
+					<ValueType>String</ValueType>
+					<TriggerLabel>currentlyPlaying_Genre</TriggerLabel>
+					<ControlPageLabel>currentlyPlaying_Genre</ControlPageLabel>
+				</State>
+
 
 				<State id="currentlyPlaying_Position">
 					<ValueType>String</ValueType>
@@ -159,6 +172,18 @@
 					<ValueType>String</ValueType>
 					<TriggerLabel>currentlyPlaying_Shuffle</TriggerLabel>
 					<ControlPageLabel>currentlyPlaying_Shufflet</ControlPageLabel>
+				</State>
+
+				<State id="currentlyPlaying_App">
+					<ValueType>String</ValueType>
+					<TriggerLabel>currentlyPlaying_App</TriggerLabel>
+					<ControlPageLabel>currentlyPlaying_App</ControlPageLabel>
+				</State>
+
+				<State id="currentlyPlaying_AppId">
+					<ValueType>String</ValueType>
+					<TriggerLabel>currentlyPlaying_AppId</TriggerLabel>
+					<ControlPageLabel>currentlyPlaying_AppId</ControlPageLabel>
 				</State>
 
 		</States>

@@ -1,4 +1,16 @@
-changes in V 0.1.2@ 2021-03-26
+changes in V 0.2.2@ 2021-03-27
+==================  
+1. changed to continuous listening process for changes of playing xxx
+   this is much more stable than the previous polling version
+2. added a lot of check in case something has an exception 
+   - delete a device, change the ip number
+3. added several menu explanations
+
+next steps:
+- send commands - power on/off/ start/ stop play etc
+
+
+changes in V 0.1.1@ 2021-03-26
 ==================  
 1. first version:
    will scan for apple tv devices every xx minutes

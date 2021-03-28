@@ -2,9 +2,22 @@
 <PluginConfig>
 
 	<Field id="infoLabel1" 				type="label"> 
-		<Label>Apple TV   Developed by Karl Wachs
-pyatv is maintained by postlund
-see: https://github.com/postlund/pyatv</Label>  
+		<Label>Apple TV plugin  Developed by Karl Wachs	</Label>
+	</Field>
+	<Field    id="postlundLabel"  	type="textfield" defaultValue="https://github.com/postlund/pyatv" readonly="True" >
+		<Label>pyatv is maintained by Postlund, for details:</Label>
+	</Field>
+<Field id="infoLabelinstall" type="label"  alignText="left" fontSize="small"> 
+		<Label>======== STEPS to make it work ============
+1. INSTALL X-CODE
+xcode-select —install
+
+2. INSTALL PYTHON3 - if you don't have it on your mac (do not use home-brew) 
+go to eg https://www.python.org/downloads/release/python-392/
+and download the 64 bit installer and install (all point and click)
+
+3.DOWNLOAD/INSTALL pyatv
+pip3 install pyatv</Label> 
 	</Field>
 
 	<Field id="simpleSeparator22" 		type="separator"/>
@@ -13,54 +26,40 @@ see: https://github.com/postlund/pyatv</Label>
 		<Label>== General Parameters for Plugin </Label>  
 	</Field>
 
-	<Field id="infoLabel24" 			type="label"> <Label>  </Label>  </Field>
+	<Field    id="everyxSecGetNewDevices"  	type="menu" defaultValue="3600" tooltip="">
+		<Label>Scan for new apple TVs every:</Label>
+			<List>
+			<Option value="600"  >10 minutes</Option>
+			<Option value="3600" >1 hour</Option>
+			</List>
+	</Field>
+
 
 	<Field    id="pathToPython3"  	type="textfield" defaultValue="/usr/local/bin/python3" tooltip="">
-		<Label>path to python3</Label>
+		<Label>path to python3:</Label>
 	</Field>
-<Field id="infoLabelpythonPath" type="label"  alignText="right" fontSize="small" fontColor="darkgrey"> 
-		<Label> either   /usr/local/bin/python3  for 10.14.x and earlier
-or    /usr/bin/python3                    for 11.x and later
+<Field id="infoLabelpythonPath" type="label"  alignText="right" fontSize="small" fontcolor="grey"> 
+		<Label>either   /usr/local/bin/python3  for 10.14.x and earlier
+or    /usr/bin/python3                   for 11.x and later
+Try "which python3" in a terminal window to check for path on your MAC
    </Label> 
 	</Field>
-
-	<Field    id="everyxSecGetNewDevices"  	type="menu" defaultValue="300" tooltip="">
-		<Label>how often for new apple TVs</Label>
-			<List>
-			<Option value="180"  >3 minutes</Option>
-			<Option value="300"  >5 minutes</Option>
-			<Option value="600"  >10 minutes</Option>
-			</List>
-	</Field>
-
-
-	<Field    id="everyxSecGetPlaying"  	type="menu" defaultValue="20" tooltip="">
-		<Label>how often read the play status of the apple TVs</Label>
-			<List>
-			<Option value="5"   >5 secs</Option>
-			<Option value="10"  >10 secs</Option>
-			<Option value="15"  >15 secs</Option>
-			<Option value="20"  >20 secs</Option>
-			<Option value="25"  >25 secs</Option>
-			</List>
-	</Field>
-
 
 	<Field id="simpleSeparator222" type="separator"/>
 
 
-	<Field id="infoLabel226" type="label"> <Label>== Debug:... (no restart)</Label>  </Field>
+	<Field id="infoLabel226" type="label"> <Label>== Debug:...</Label>  </Field>
 
 	<Field    id="debugGetData"       type="checkbox"  defaultValue="false"    > <Label>... (1) get Data:</Label>  </Field>
 	<Field    id="debugReceiveData"   type="checkbox"  defaultValue="false"    > <Label>... (2) receive Data:</Label>  </Field>
 	<Field    id="debugConsumption"   type="checkbox"  defaultValue="false"    > <Label>... (3) consumption of data:</Label>  </Field>
+	<Field    id="debugThreads"   	  type="checkbox"  defaultValue="false"    > <Label>... (4) Threads for listening to whats playing:</Label>  </Field>
 	<Field    id="debugBasic"         type="checkbox"  defaultValue="false"    > <Label>... (10) basic:</Label>  </Field>
 	<Field    id="debugSpecial"       type="checkbox"  defaultValue="false"    > <Label>... (19) Special debug for development:</Label>  </Field>
 	<Field    id="debugall"           type="checkbox"  defaultValue="false"    > <Label>... (20) all of the above = everything:</Label>  </Field>
-	<Field    id="logFileActive2"     type="menu"      defaultValue="indigo"   > <Label> send DETAILED logs to ..:</Label>
-		<List>
-			<Option value="indigo"   > .. Perceptive Automation/Indigo x/Logs/com.karlwachs.appleTV/plugin.log </Option>
-		</List>
+	<Field id="logFileActive2" type="label"> 
+		<Label> send DETAILED logs to: 
+   ..Perceptive Automation/Indigo x.y/Logs/com.karlwachs.appleTV/plugin.log </Label>
 	</Field>
 
 </PluginConfig>
