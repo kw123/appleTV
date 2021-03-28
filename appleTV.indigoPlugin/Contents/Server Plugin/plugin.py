@@ -206,7 +206,7 @@ class Plugin(indigo.PluginBase):
 
 	####-----------------  update state lists ---------
 	def deviceStartComm(self, dev):
-		if self.decideMyLog(u"Basic"): self.indiLOG.log(10,u"starting device:  {}  {}  {}".format(dev.name, dev.id), dev.states[u"MAC"])
+		if self.decideMyLog(u"Basic"): self.indiLOG.log(10,u"starting device:  {}  {}  {}".format(dev.name, dev.id, dev.states[u"MAC"]))
 
 		if	self.pluginState == "init":
 			dev.stateListOrDisplayStateIdChanged()
@@ -294,10 +294,10 @@ class Plugin(indigo.PluginBase):
 			cmd = [self.pathToPython3,self.pathToPlugin+"atvremote.py", "-i", dev.states["MAC"], cc[0]]
 			if cc[1] == "":
 				out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-				if self.decideMyLog(u"Special"): self.indiLOG.log(10,u"ret from command:{}\n{}".format(cmd, out))
+				if self.decideMyLog(u"Special"): self.indiLOG.log(10,u"execCommandToAppleTVCALLBACK command:{}".format(cmd))
 			else:
 				out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()[0].strip()
-				if self.decideMyLog(u"Special"): self.indiLOG.log(10,u"ret from command:{}\n{}".format(cmd, out))
+				if self.decideMyLog(u"Special"): self.indiLOG.log(10,u"execCommandToAppleTVCALLBACK ret from command:{}\n{}".format(cmd, out))
 				retVal = {"PowerState.On":"on","PowerState.Off":"off"}
 				val = retVal.get(out,"")
 				self.fillScanIntoDevStates(dev, {cc[1]:val})
@@ -680,7 +680,7 @@ class Plugin(indigo.PluginBase):
 	####-----------------	 ---------
 	def fillScanIntoDevStates(self, dev, data):
 		try:
-			if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"========= {} combined:{}".format(dev.name, json.dumps(data, sort_keys=True, indent=2)))
+			if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"========= {} fillScanIntoDevStates:{}".format(dev.name, json.dumps(data, sort_keys=True, indent=2)))
 			chList =[]
 
 			for key, val in self.statesToATVMappping.items():
@@ -815,12 +815,15 @@ Services:
 			
 			for section in data:
 				ip		= section.split(u"Address: ")[1].split("\n")[0].strip()
-				retDict[ip] 				= {}
-				theItems 					= section.split("\n")
-				retDict[ip]["name"] 		= theItems[0]
-				retDict[ip][u"model"] 		= section.split(u"Model/SW: ")[1].split("\n")[0].strip()
-				retDict[ip][u"MAC"] 		= section.split(u"MAC: ")[1].split("\n")[0].strip()
-				retDict[ip][u"deepSleep"] 	= section.split(u"Deep Sleep: ")[1].split("\n")[0].strip()
+				retDict[ip] 						= {}
+				theItems 							= section.split("\n")
+				retDict[ip]["name"] 				= theItems[0]
+				retDict[ip][u"model"] 				= section.split(u"Model/SW: ")[1].split("\n")[0].strip()
+				retDict[ip][u"MAC"] 				= section.split(u"MAC: ")[1].split("\n")[0].strip()
+				retDict[ip][u"deepSleep"] 			= section.split(u"Deep Sleep: ")[1].split("\n")[0].strip()
+				retDict[ip][u"MRPCredentials"] 		= ""
+				retDict[ip][u"AIRPLAYCredentials"] 	= ""
+				retDict[ip][u"identifier"] 			= ""
 
 				rest = section.split(u"Identifiers:\n")[1]
 				rest = rest.split(u"\nServices:\n")

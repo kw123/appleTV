@@ -59,9 +59,9 @@
 					<Option value="volume_down;"			>Press key volume down</Option>
 					<Option value="volume_up;"				>Press key volume up</Option>
 					<Option value="wakeup;"					>Wake up the device</Option>
-					<Option value="power_state;power_state"	>Return device power state</Option>
 					<Option value="turn_off;"				>Turn device off</Option>
 					<Option value="turn_on;"				>Turn device on</Option>
+					<Option value="power_state;power_state"	>Return device power state</Option>
 				 </List>
 			</Field>
 			<Field id="exec" type="button"> 

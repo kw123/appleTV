@@ -1,3 +1,9 @@
+changes in V 0.5.3@ 2021-03-28  
+==================    
+1. fixed 
+   error=u'MRPCredentials'
+   tuple index out of range
+
 changes in V 0.5.2@ 2021-03-28  
 ==================    
 1. added menu and actions (Send command to apple tv)  
