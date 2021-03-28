@@ -371,6 +371,17 @@ class Plugin(indigo.PluginBase):
 		self.postLoop()
 
 
+	def postLoop(self):
+
+		try:
+			self.pluginState   = "stop"
+			indigo.server.savePluginPrefs()	
+		except	Exception, e:
+			if unicode(e).find(u"None") == -1:
+				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
+		return 
+
+
 	###########################	   exec the loop  ############################
 	####-----------------	 ---------
 	def updateChangedStatesInDeviceEdit(self):
@@ -383,7 +394,7 @@ class Plugin(indigo.PluginBase):
 							if state == "ip":
 								newIp = self.updateStates[devId][state]
 								oldIP = dev.states["ip"]
-								self.scanThreadsForPush[oldIP]["status"] = "stop"
+								self.stopThreadsForPush(oldIP)
 								self.indiLOG.log(10,u"resetting ip:{} to new ip:{}".format(oldIP, newIp))
 								self.stopThreadsForPush(oldIP)
 								self.sleep(5) # wait for old tyhread to stop, then delete reference to it 
@@ -424,7 +435,7 @@ class Plugin(indigo.PluginBase):
 				try:
 					indigo.devices[int(self.scanThreadsForPush[ip]["devId"])]
 				except:
-					self.scanThreadsForPush[ip]["status"] = "stop"
+					self.stopThreadsForPush(ip)
 					
 
 		except	Exception, e:
@@ -482,6 +493,7 @@ class Plugin(indigo.PluginBase):
 			newlinesFromServer = ""
 			restartListenerAfterSecWithNoMessages = 600.
 			while True:
+				# stop thread when asked to
 				if self.pluginState == "stop" or self.scanThreadsForPush[ip]["status"] == "stop": 
 					try:	self.killPidIfRunning(ip, function="push_updates")
 					except:	pass
@@ -489,12 +501,14 @@ class Plugin(indigo.PluginBase):
 				self.sleep(msgSleep)
 				msgSleep = min(0.5,msgSleep)
 
+				# restart the listener process after xx secs  w/o any message
 				if time.time() - self.scanThreadsForPush[ip]["lastRead"] > restartListenerAfterSecWithNoMessages:
 					try:	self.killPidIfRunning(ip, function="push_updates" )
 					except:	pass
 					ListenProcessFileHandle = ""
 					self.sleep(5)
 
+				# restart the listener process 
 				if ListenProcessFileHandle == "" or self.scanThreadsForPush[ip]["status"] == "restart":
 					cmd = [self.pathToPython3,self.pathToPlugin+"atvscript.py","-s",ip,"push_updates"]
 					ListenProcessFileHandle = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -508,8 +522,10 @@ class Plugin(indigo.PluginBase):
 					fcntl.fcntl(ListenProcessFileHandle.stdout, fcntl.F_SETFL, flags | os.O_NONBLOCK)
 					if self.decideMyLog(u"Threads"): self.indiLOG.log(10,"=== listenToDevices  ip:{}, (re)started listener".format(ip))
 					self.scanThreadsForPush[ip]["lastRead"] = time.time()
+				## sucessful?
 				if ListenProcessFileHandle == "": continue 
 
+				## read data from input stream
 				try: 
 					lfs = ""
 					lfs = os.read(ListenProcessFileHandle.stdout.fileno(),4096).decode(u"utf8") 
@@ -529,9 +545,11 @@ class Plugin(indigo.PluginBase):
 							else:
 								if self.decideMyLog(u"Threads"):self.indiLOG.log(40,out)
 								if self.decideMyLog(u"Threads"):self.indiLOG.log(40,lfs)
+				## anything received?
 				if len(newlinesFromServer) < 3: continue
 
 				if self.decideMyLog(u"Threads"):self.indiLOG.log(10,"=== listenToDevices  ip:{}, json input:{}".format(ip, newlinesFromServer))
+				## try tu onpack it 
 				try: 
 					""" when apple tv is off, then restart
 					{"result": "failure", "datetime": "2021-03-27T15:04:37.495967-05:00", "exception": "[Errno 60] Operation timed out", "stacktrace": "Traceback (most recent call last):\n  File \"/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/asyncio/selector_events.py\", line 856, in _read_ready__data_received\n    data = self._sock.recv(self.max_size)\nTimeoutError: [Errno 60] Operation timed out\n", "connection": "lost"}
@@ -542,10 +560,6 @@ class Plugin(indigo.PluginBase):
 					for line in lines:
 						#self.indiLOG.log(10,"=== listenToDevices  items:{}".format(xx))
 						js = json.loads(line)
-						#if self.decideMyLog(u"Threads"):self.indiLOG.log(20,"=== listenToDevices  ip:{},  1:{}".format(ip, "connection"  in js and js["connection"]  == "closed"))
-						#if self.decideMyLog(u"Threads"):self.indiLOG.log(20,"=== listenToDevices  ip:{},  1:{}".format(ip, u"error"  	 in js and js[u"error"] 	 == u"device_not_found"))
-						#if self.decideMyLog(u"Threads"):self.indiLOG.log(20,"=== listenToDevices  ip:{},  1:{}".format(ip, u"connection" in js and js[u"connection"] == u"lost"))
-						#if self.decideMyLog(u"Threads"):self.indiLOG.log(20,"=== listenToDevices  ip:{},  1:{}".format(ip, u"exception"  in js and js[u"exception"].find(u"timed out") >-1))
 						if ( ( "connection"  in js and js["connection"]  == "closed") 				or
 							 ( u"error"  	 in js and js[u"error"] 	 == u"device_not_found") 	or 
 							 ( u"connection" in js and js[u"connection"] == u"lost") 				or
@@ -556,6 +570,7 @@ class Plugin(indigo.PluginBase):
 							except:	pass
 							ListenProcessFileHandle = "" # == restart
 							msgSleep = 5
+						## send result to fill device states
 						self.fillScanIntoDevStates(indigo.devices[devId],js )
 						newlinesFromServer = ""
 						self.scanThreadsForPush[ip]["lastRead"] = time.time()
@@ -614,7 +629,8 @@ class Plugin(indigo.PluginBase):
 			if time.time() - self.lastGetNewDevices < self.everyxSecGetNewDevices: return
 
 			self.lastGetNewDevices = time.time()
-		
+	
+			## first do a script request scan retruns a nice json	
 			data = self.getscriptScan()
 
 			if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========+++++ combined:{}".format(json.dumps(data, sort_keys=True, indent=2)))
@@ -630,14 +646,16 @@ class Plugin(indigo.PluginBase):
 					break
 
 				if not ipFound:
+					## if new fill some properties with atpremote,  scan does not get all parameters
 					data2 = self.getatvremoteScan(ip=ip)
 					if ip in data2:
 						if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========+++++ getatvremoteScan:{}".format(data2))
-						data[ip][u"MAC"] 				= data2[ip][u"MAC"]
-						data[ip][u"MRPCredentials"] 	= data2[ip][u"MRPCredentials"]
-						data[ip][u"AIRPLAYCredentials"] = data2[ip][u"AIRPLAYCredentials"]
-						data[ip][u"model"] 				= data2[ip][u"model"]
+						if u"MAC" 					in data2[ip]: 		data[ip][u"MAC"] 				= data2[ip][u"MAC"]
+						if u"MRPCredentials" 		in data2[ip]: 		data[ip][u"MRPCredentials"] 	= data2[ip][u"MRPCredentials"]
+						if u"AIRPLAYCredentials" 	in data2[ip]: 		data[ip][u"AIRPLAYCredentials"] = data2[ip][u"AIRPLAYCredentials"]
+						if u"model" 				in data2[ip]: 		data[ip][u"model"] 				= data2[ip][u"model"]
 
+					## create new indigo device
 					devProps = {}
 					devProps[u"isAppleTV"]					= True
 					devProps[u"SupportsOnState"]			= False
@@ -658,6 +676,7 @@ class Plugin(indigo.PluginBase):
 					props =			 devProps)
 					#folder =		 self.folderNameIDSystemID,
 					dev.updateStateOnServer(u"ip",ip)
+				## fille device states
 				chList =[]
 				for xx in [	u"deepSleep", u"name", u"MAC", u"model", u"identifier",
 							u"MRPPort", u"MRPCredentials", u"AIRPLAYPort", u"AIRPLAYCredentials",
@@ -667,6 +686,7 @@ class Plugin(indigo.PluginBase):
 					if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"{}:  change states {}".format(dev.name, ch))
 
 				dev.updateStatesOnServer(chList)
+				## start listener process if new device
 				if not ipFound:
 					if ip in self.scanThreadsForPush[ip]:
 						self.stopThreadsForPush(ip)
@@ -683,11 +703,13 @@ class Plugin(indigo.PluginBase):
 			if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"========= {} fillScanIntoDevStates:{}".format(dev.name, json.dumps(data, sort_keys=True, indent=2)))
 			chList =[]
 
+			## only select changed states
 			for key, val in self.statesToATVMappping.items():
 				if self.checkIfChanged(key, val, dev.states, data): chList.append({u"key":key, u"value": "" if data[val] is None else data[val]}) 
 
-			for ch in chList:
-				if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"{}  change states {}".format(dev.name,ch))
+			if self.decideMyLog(u"Consumption"):
+				for ch in chList:
+					self.indiLOG.log(10,u"{}  change states {}".format(dev.name,ch))
 
 			# set status 
 			if "result" in data and data["result"] == "failure" and "error" in data:
@@ -702,6 +724,7 @@ class Plugin(indigo.PluginBase):
 					dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOn)
 					chList.append({u"key":u"status", u"value":data[self.statesToATVMappping["currentlyPlaying_DeviceState"]], u"uiValue":data[self.statesToATVMappping["currentlyPlaying_DeviceState"]]}) 
 
+			## now fill the states
 			dev.updateStatesOnServer(chList)
 
 		except	Exception, e:
@@ -851,16 +874,6 @@ Services:
 		return retDict
 
 
-
-	def postLoop(self):
-
-		try:
-			self.pluginState   = "stop"
-			indigo.server.savePluginPrefs()	
-		except	Exception, e:
-			if unicode(e).find(u"None") == -1:
-				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
-		return 
 
 
 ####-----------------	 ---------
