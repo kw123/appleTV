@@ -262,13 +262,50 @@ class Plugin(indigo.PluginBase):
 			return (False, valuesDict, valuesDict)
 
 	####-----------------	 ---------
-	def printConfigMenu(self,  valuesDict=None, typeId=""):
-		return 
+	def printConfigMenu(self,  valuesDict, typeId):
+		return valuesDict
 
 	####-----------------	 ---------
-	def getNewDevicesCALLBACK(self,  valuesDict=None, typeId=""):
+	def getNewDevicesCALLBACK(self,  valuesDict, typeId):
 		self.lastGetNewDevices = 0
-		return 
+		return valuesDict
+
+
+	####-----------------	 ---------
+	def filterAppleTV(self, filter, valuesDict, typeId, xx=""):
+		try:
+			xList = []
+			for dev in indigo.devices.iter(u"props.isAppleTV"):
+				if dev.enabled:
+					xList.append([dev.id,dev.name])
+		except	Exception, e:
+			if unicode(e).find(u"None") == -1:
+				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e) )
+			return []
+		return xList
+	####-----------------	 ---------
+	def execCommandToAppleTVCALLBACKaction(self, valuesDict, typeId):
+		return self.execCommandToAppleTVCALLBACK(valuesDict.props,typeId)
+	####-----------------	 ---------
+	def execCommandToAppleTVCALLBACK(self, valuesDict, typId):
+		try:
+			cc = valuesDict["command"].split(";")
+			dev = indigo.devices[int(valuesDict["appleTV"])]
+			cmd = [self.pathToPython3,self.pathToPlugin+"atvremote.py", "-i", dev.states["MAC"], cc[0]]
+			if cc[1] == "":
+				out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+				if self.decideMyLog(u"Special"): self.indiLOG.log(10,u"ret from command:{}\n{}".format(cmd, out))
+			else:
+				out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()[0].strip()
+				if self.decideMyLog(u"Special"): self.indiLOG.log(10,u"ret from command:{}\n{}".format(cmd, out))
+				retVal = {"PowerState.On":"on","PowerState.Off":"off"}
+				val = retVal.get(out,"")
+				self.fillScanIntoDevStates(dev, {cc[1]:val})
+		except	Exception, e:
+			if unicode(e).find(u"None") == -1:
+				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e) )
+			return  valuesDict
+		return  valuesDict
 
 
 	###########################	   MAIN LOOP  ############################

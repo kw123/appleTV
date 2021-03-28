@@ -23,4 +23,54 @@
 
 		</ConfigUI>
 	</MenuItem>
+
+	<MenuItem id="sendCommand">
+		<Name>Send command to apple tv</Name>
+		<ConfigUI>
+			<Field id="appleTV" type="menu" defaultValue="0" tooltip="select appleTV ">
+				<List class="self" filter="" method="filterAppleTV" dynamicReload="flase" />
+				<Label>select apple tv to send command to:</Label>
+			</Field>
+
+			<Field id="command" type="menu" defaultValue="0"> 
+				<Label>select command</Label> 
+				 <List>
+					<Option value="down;"					>Press key down</Option>
+					<Option value="home;"					>Press key home</Option>
+					<Option value="home_hold;"				>Hold key home</Option>
+					<Option value="left;"					>Press key left</Option>
+					<Option value="menu;"					>Press key menu</Option>
+					<Option value="next;"					>Press key next</Option>
+					<Option value="pause;"					>Press key play</Option>
+					<Option value="play;"					>Press key play</Option>
+					<Option value="play_pause;"				>Toggle between play and pause</Option>
+					<Option value="previous;"				>Press key previous</Option>
+					<Option value="right;"					>Press key right</Option>
+					<Option value="select;"					>Press key select</Option>
+					<Option value="set_position;"			>Seek in the current playing media</Option>
+					<Option value="set_repeat;"				>Change repeat state</Option>
+					<Option value="set_shuffle;"			>Change shuffle mode to on or off</Option>
+					<Option value="skip_backward;"			>Skip backwards a time interval</Option>
+					<Option value="skip_forward;"			>Skip forward a time interval</Option>
+					<Option value="stop;"					>Press key stop</Option>
+					<Option value="suspend;"				>Suspend the device</Option>
+					<Option value="top_menu;"				>Go to main menu (long press menu)</Option>
+					<Option value="up;"						>Press key up</Option>
+					<Option value="volume_down;"			>Press key volume down</Option>
+					<Option value="volume_up;"				>Press key volume up</Option>
+					<Option value="wakeup;"					>Wake up the device</Option>
+					<Option value="power_state;power_state"	>Return device power state</Option>
+					<Option value="turn_off;"				>Turn device off</Option>
+					<Option value="turn_on;"				>Turn device on</Option>
+				 </List>
+			</Field>
+			<Field id="exec" type="button"> 
+				<Label>execute Command</Label> 
+				<Title>Execute</Title><CallbackMethod>execCommandToAppleTVCALLBACK</CallbackMethod>
+			</Field>
+
+		</ConfigUI>
+	</MenuItem>
 </MenuItems>
+
+

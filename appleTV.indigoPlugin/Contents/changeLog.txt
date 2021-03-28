@@ -1,25 +1,61 @@
-changes in V 0.2.2@ 2021-03-27
-==================  
-1. changed to continuous listening process for changes of playing xxx
-   this is much more stable than the previous polling version
-2. added a lot of check in case something has an exception 
-   - delete a device, change the ip number
-3. added several menu explanations
-
-next steps:
-- send commands - power on/off/ start/ stop play etc
-
-
-changes in V 0.1.1@ 2021-03-26
-==================  
-1. first version:
-   will scan for apple tv devices every xx minutes
-   will read play status of ided apple tv devices ever xx secs
-   Configure in config:
-   - path to python
-   - time for scan and read sequences
-   In device edit the IP numebr can be over written 
-   In menu a manual scan for new devices can be initated
-      
-
+changes in V 0.5.2@ 2021-03-28  
+==================    
+1. added menu and actions (Send command to apple tv)  
+     down             Press key down  
+     home             Press key home  
+     home_hold        Hold key home  
+     left             Press key left  
+     menu             Press key menu  
+     next             Press key next  
+     pause            Press key play  
+     play             Press key play  
+     play_pause       Toggle between play and pause  
+     previous         Press key previous  
+     right            Press key right  
+     select           Press key select  
+     set_position     Seek in the current playing media  
+     set_repeat       Change repeat state  
+     set_shuffle      Change shuffle mode to on or off  
+     skip_backward    Skip backwards a time interval  
+     skip_forward     Skip forward a time interval  
+     stop             Press key stop  
+     suspend          Suspend the device  
+     top_menu         Go to main menu (long press menu)  
+     up               Press key up  
+     volume_down      Press key volume down  
+     volume_up        Press key volume up  
+     wakeup           Wake up the device  
+     power_state      Return device power state  
+     turn_off         Turn device off  
+     turn_on          Turn device on  
+  
+next function:  
+send play xx commands like play song or http ref.  
+  
+  
+changes in V 0.3.2@ 2021-03-27  
+==================    
+1. changed to continuous listening process for changes of playing xxx  
+   this is much more stable than the previous polling version  
+2. added a lot of check in case something has an exception   
+   - delete a device, change the ip number  
+3. added several menu explanations  
+  
+  
+next steps:  
+- send commands - power on/off/ start/ stop play etc  
+  
+  
+changes in V 0.1.1@ 2021-03-26  
+==================    
+1. first version:  
+   will scan for apple tv devices every xx minutes  
+   will read play status of ided apple tv devices ever xx secs  
+   Configure in config:  
+   - path to python  
+   - time for scan and read sequences  
+   In device edit the IP numebr can be over written   
+   In menu a manual scan for new devices can be initated  
+        
+  
    
