@@ -11,7 +11,7 @@ xcode-select —install
 go to eg https://www.python.org/downloads/release/python-392/  
 and download the 64 bit installer and install (all point and click)  
   
-3.DOWNLOAD/INSTALL pyatv  
+3. DOWNLOAD/INSTALL pyatv  
 pip3 install pyatv  
   
 path to python either    /usr/local/bin/python3  for 10.14.x and earlier (w pip3 install)  
