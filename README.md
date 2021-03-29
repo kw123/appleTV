@@ -89,6 +89,6 @@ Try 'which python3' in a terminal window to check for path on your MAC)
    - features - Print a list of all features and options  
   
 ## NOT IMPLEMENTED YET, needS pairing --  
-# AirPlay commands:  
+### AirPlay commands:  
    - play_url - Play media from an URL on the device   
   
