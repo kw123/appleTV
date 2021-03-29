@@ -4,7 +4,7 @@
 This plugin is build on top of AVTpy by Postlund, see https://github.com/postlund/pyatv  
   
 ##  STEPS TO MAKE IT WORK 
-1. INSTALL X-CODE  
+1. INSTALL X-CODE  in a terminal window    
 xcode-select —install  
   
 2. INSTALL PYTHON3 - if you don't have it on your mac (do not use home-brew)   
@@ -12,7 +12,7 @@ go to eg https://www.python.org/downloads/release/python-392/
 and download the 64 bit installer and install (all point and click)  
   
 3. DOWNLOAD/INSTALL pyatv  
-pip3 install pyatv  
+pip3 install pyatv   in a terminal window   
   
 path to python either    /usr/local/bin/python3  for 10.14.x and earlier (w pip3 install)  
                    or    /usr/bin/python3        for 11.x and later)  
@@ -71,7 +71,7 @@ Try 'which python3' in a terminal window to check for path on your MAC)
    - device_id - Return a unique identifier for current device  
    - playing - Return what is currently playing   
   
-### PLAYING VOMMANDS:  - print result to log  
+### PLAYING COMMANDS:  - print result to log  
    - album - Album of the currently playing song  
    - artist - Artist of the currently playing song  
    - device_state - Device state, e.g. playing or paused  
@@ -84,11 +84,11 @@ Try 'which python3' in a terminal window to check for path on your MAC)
    - title - Title of the current media, e.g. movie or song name  
    - total_time - Total play time in seconds   
   
-### DEVICE COMMANDSs:  
+### DEVICE COMMANDS:  
    - artwork_save - Download artwork and save it to artwork.png  
    - features - Print a list of all features and options  
   
-## NOT IMPLEMENTED YET, needS pairing --  
+## NOT IMPLEMENTED YET, needs pairing --  
 ### AirPlay commands:  
    - play_url - Play media from an URL on the device   
   
