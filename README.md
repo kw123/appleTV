@@ -1,9 +1,9 @@
-# appleTV
-apple tv plugin for indigo, using https://github.com/postlund/pyatv tools  
---------- **credits**  -----  
+# appleTV plugin for indigo 
+# =================== HELP for appleTV plugin===========================  
+##  **credits**    
 This plugin is build on top of AVTpy by Postlund, see https://github.com/postlund/pyatv  
   
-## --------- STEPS TO MAKE IT WORK -----  
+##  STEPS TO MAKE IT WORK 
 1. INSTALL X-CODE  
 xcode-select —install  
   
@@ -11,14 +11,14 @@ xcode-select —install
 go to eg https://www.python.org/downloads/release/python-392/  
 and download the 64 bit installer and install (all point and click)  
   
-3. DOWNLOAD/INSTALL pyatv  
+3.DOWNLOAD/INSTALL pyatv  
 pip3 install pyatv  
   
 path to python either    /usr/local/bin/python3  for 10.14.x and earlier (w pip3 install)  
                    or    /usr/bin/python3        for 11.x and later)  
 Try 'which python3' in a terminal window to check for path on your MAC)  
   
-## --------- WHAT DOES IT DO:  -----  
+##  WHAT DOES IT DO:  
 1. it scans the local network for apple TVs with atvscript.py scan   
 2. then is lauchnes a listener for any change of channel, volume, dev state etc and populates the indigo dev states accordingly   
 3. every xx minutes it will rescan for new apple TVs - or you can manually scan in plugin/menu  
@@ -27,13 +27,13 @@ Try 'which python3' in a terminal window to check for path on your MAC)
 6. you can set certain IP numbers to be ignored, change ip number / mac# of an apple device in device edit if that has changed 
 -- not yet implemented: play music / video on apple TV. That requires to sync a pin between the apple TV and the plugin 
   
-## --------- Possible things that can go wrong: -----  
+##  Possible things that can go wrong: -----  
    dev state: 'Unclosed client session' or something like it  
       try to use iphone remote app to connect to the appleTV. If that does not work a power cycle appleTV should fix it  
   
-## --------- available commands in menu and actions -----  
+## AVAILABE COMMANDS IN MENU AND ACTION   
   
-### Remote control commands:  
+### RREMOTE CONTROLL COMMANDS:  
    - down - Press key down  
    - home - Press key home  
    - home_hold - Hold key home  
@@ -59,19 +59,19 @@ Try 'which python3' in a terminal window to check for path on your MAC)
    - volume_up - Press key volume up  
    - delay=xxxx - Sleep for a certain amount in milliseconds  before next command eg when you send 2 or more commands 
   
-### Power commands:  
+### POWER COMMANDS:  
    - power_state - Return device power state  
    - turn_off - Turn device off  
    - turn_on - Turn device on 
   
-### Metadata commands:  - print result to log
+### METADATA COMMANDS, PRINTED TO LOG  
    - app - Return information about current app playing something  
    - artwork - Return artwork for what is currently playing (or None)  
    - artwork_id - Return a unique identifier for current artwork  
    - device_id - Return a unique identifier for current device  
    - playing - Return what is currently playing   
   
-### Playing commands:  - print result to log  
+### PLAYING VOMMANDS:  - print result to log  
    - album - Album of the currently playing song  
    - artist - Artist of the currently playing song  
    - device_state - Device state, e.g. playing or paused  
@@ -84,11 +84,12 @@ Try 'which python3' in a terminal window to check for path on your MAC)
    - title - Title of the current media, e.g. movie or song name  
    - total_time - Total play time in seconds   
   
-### Device commands:  
+### DEVICE COMMANDSs:  
    - artwork_save - Download artwork and save it to artwork.png  
    - features - Print a list of all features and options  
   
-## --not implemented yet, need pairing --  
+## NOT IMPLEMENTED YET, needS pairing --  
 # AirPlay commands:  
    - play_url - Play media from an URL on the device   
   
+===============================================================================  
