@@ -1,5 +1,5 @@
 # appleTV
-apple tv plugin for indigo, using https://github.com/postlund/pyatv tools
+apple tv plugin for indigo, using https://github.com/postlund/pyatv tools  
 --------- **credits**  -----  
 This plugin is build on top of AVTpy by Postlund, see https://github.com/postlund/pyatv  
   
