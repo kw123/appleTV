@@ -27,7 +27,7 @@ Try 'which python3' in a terminal window to check for path on your MAC)
 6. you can set certain IP numbers to be ignored, change ip number / mac# of an apple device in device edit if that has changed 
 -- not yet implemented: play music / video on apple TV. That requires to sync a pin between the apple TV and the plugin 
   
-##  Possible things that can go wrong: -----  
+##  Possible things that can go wrong:   
    dev state: 'Unclosed client session' or something like it  
       try to use iphone remote app to connect to the appleTV. If that does not work a power cycle appleTV should fix it  
   
