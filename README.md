@@ -1,5 +1,5 @@
 # appleTV plugin for indigo 
-## =================== HELP for appleTV plugin===========================  
+    
 ##  **credits**    
 This plugin is build on top of AVTpy by Postlund, see https://github.com/postlund/pyatv  
   
@@ -92,4 +92,3 @@ Try 'which python3' in a terminal window to check for path on your MAC)
 # AirPlay commands:  
    - play_url - Play media from an URL on the device   
   
-===============================================================================  
