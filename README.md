@@ -1,5 +1,5 @@
 # appleTV plugin for indigo 
-    
+	
 ##  **credits**    
 This plugin is build on top of AVTpy by Postlund, see https://github.com/postlund/pyatv  
   
@@ -15,7 +15,7 @@ and download the 64 bit installer and install (all point and click)
 pip3 install pyatv   in a terminal window   
   
 path to python either    /usr/local/bin/python3  for 10.14.x and earlier (w pip3 install)  
-                   or    /usr/bin/python3        for 11.x and later)  
+				   or    /usr/bin/python3        for 11.x and later)  
 Try 'which python3' in a terminal window to check for path on your MAC)  
   
 ##  WHAT DOES IT DO:  
@@ -29,7 +29,7 @@ Try 'which python3' in a terminal window to check for path on your MAC)
   
 ##  Possible things that can go wrong:   
    dev state: 'Unclosed client session' or something like it  
-      try to use iphone remote app to connect to the appleTV. If that does not work a power cycle appleTV should fix it  
+	  try to use iphone remote app to connect to the appleTV. If that does not work a power cycle appleTV should fix it  
   
 ## AVAILABE COMMANDS IN MENU AND ACTION   
   

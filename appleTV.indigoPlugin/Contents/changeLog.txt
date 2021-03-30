@@ -1,15 +1,15 @@
-changes in V 1.0.5@ 2021-03-29
+changes in V 1.0.6@ 2021-03-29
 ==================    
-1.  cosmetic changes in menus
-    added print help to logfile in menu
-    added check if python3 is properly installed 
-
+1. cosmetic changes in menus
+2. added print help to logfile in menu
+3. added check if python3 is properly installed 
+ 
 
 
 changes in V 0.7.5@ 2021-03-28  
 ==================    
-1.added free text commands - you can send several commands in one eg 'turn_on delay=1000 play'
-2.added print help menu command, gives a long list of how to install, how to use etc.
+1. added free text commands - you can send several commands in one eg 'turn_on delay=1000 play'
+2. added print help menu command, gives a long list of how to install, how to use etc.
 
 
 changes in V 0.6.5@ 2021-03-28  
