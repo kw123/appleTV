@@ -6,25 +6,24 @@
 # karlwachs@me.com
 #pyatv is maintained by postlund
 #see: https://github.com/postlund/pyatv
+try:
+	import json
+except:
+	import simplejson as json
+
 import datetime
-import simplejson as json
+import time
 import subprocess
 import fcntl
 import os
 import sys
 import pwd
-import time
 import Queue
-import socket
-import getNumber as GT
 import threading
 import logging
 import copy
-import json
 
 from checkIndigoPluginName import checkIndigoPluginName 
-
-
 
 dataVersion = 0.1
 
@@ -158,7 +157,7 @@ class Plugin(indigo.PluginBase):
 
 		self.pluginState 						= "init"
 		self.scanThreadsForPush 				= {}
-		self.updateStatesAfterDevEditSave						= {}
+		self.updateStatesAfterDevEditSave		= {}
 
 
 		self.debugLevel = []
@@ -168,13 +167,17 @@ class Plugin(indigo.PluginBase):
 
 		self.ignoreDevices						= json.loads(self.pluginPrefs.get("ignoreDevices","{}"))
 
-
-		self.everyxSecGetNewDevices				= float(self.pluginPrefs.get("everyxSecGetNewDevices",3600))
+		self.everyxSecGetNewDevices				= float(self.pluginPrefs.get("everyxSecGetNewDevices",86400))
 		self.everyxSeccheckIfThreadIsRunning	= 30
 
 		self.pathToPython3 						= self.pluginPrefs.get("pathToPython3", "/usr/local/bin/python3")
 		self.indiLOG.log(20,  u"path To python3                {}".format(self.pathToPython3))
 		self.indiLOG.log(20,  u"check for new devices every    {:.0f} minutes".format(self.everyxSecGetNewDevices/60))
+		if not os.path.isfile(self.pathToPython3):
+				self.indiLOG.log(30,u" {}  is not present on this mac, see logfile on how to install python3".format(self.pathToPython3) )
+				self.printHelpMenu( {}, "")
+				self.sleep(2000)
+				exit(0) 
 
 		return 
 
@@ -222,9 +225,10 @@ class Plugin(indigo.PluginBase):
 
 	####-----------------  update state lists ---------
 	def deviceStartComm(self, dev):
-		if self.decideMyLog(u"Basic"): self.indiLOG.log(10,u"starting device:  {}  {}  {}".format(dev.name, dev.id, dev.states[u"MAC"]))
+		if self.pluginState != u"init":
+			if self.decideMyLog(u"Basic"):self.indiLOG.log(10,u"starting device:  {}  {}".format(dev.name, dev.id))
 
-		if	self.pluginState == "init":
+		if self.pluginState == "init":
 			dev.stateListOrDisplayStateIdChanged()
 
 		return
@@ -240,7 +244,6 @@ class Plugin(indigo.PluginBase):
 	def validatePrefsConfigUi(self, valuesDict):
 
 		try:
-
 			##
 			self.debugLevel = []
 			for d in _debugAreas:
@@ -248,13 +251,18 @@ class Plugin(indigo.PluginBase):
 
 			try: 	self.everyxSecGetNewDevices				= float(valuesDict["everyxSecGetNewDevices"])
 			except: valuesDict["everyxSecGetNewDevices"] 	= unicode(int(self.everyxSecGetNewDevices))
-			self.pathToPython3						= valuesDict["pathToPython3"]
+			self.pathToPython3								= valuesDict["pathToPython3"]
+			if not os.path.isfile(self.pathToPython3):
+				self.indiLOG.log(30,u" {}  is not present on this mac, see logfile on  how to install python3".format(self.pathToPython3) )
+				valuesDict["pathToPython3"] = u" does not exist"
+				self.printHelpMenu( {}, "")
+				return (False, valuesDict, valuesDict)
 
 			self.indiLOG.log(20,  u"check for new devices every     {:.0f} minutes".format(self.everyxSecGetNewDevices/60))
 			self.indiLOG.log(20,  u"path To python3                 {}".format(self.pathToPython3))
 
-
 			return True, valuesDict
+
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
 				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e) )
@@ -274,6 +282,7 @@ class Plugin(indigo.PluginBase):
 			if valuesDict["overwriteMAC"] != dev.states["MAC"] and self.isValidMAC(valuesDict["overwriteMAC"]):
 				self.updateStatesAfterDevEditSave[devId]["MAC"] = valuesDict["overwriteMAC"]
 			return True, valuesDict
+
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
 				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e) )
@@ -281,94 +290,101 @@ class Plugin(indigo.PluginBase):
 
 	####-----------------	 ---------
 	def printHelpMenu(self,  valuesDict, typeId):
-		out =  u"\n=================== HELP for appleTV plugin===========================  \n"
-		out += u"--------- credits  -----  \n"
+		out =  u"\n# =================== HELP for appleTV plugin===========================  \n"
+		out += u"##  **credits**    \n"
 		out += u"This plugin is build on top of AVTpy by Postlund, see https://github.com/postlund/pyatv  \n"
 		out += u"  \n"
-		out += u"--------- STEPS to make it work -----  \n"
-		out += u"1. INSTALL X-CODE  \n"
+		out += u"##  STEPS TO MAKE IT WORK \n"
+		out += u"1. INSTALL X-CODE  in a terminal window  \n"
 		out += u"xcode-select —install  \n"
 		out += u"  \n"
 		out += u"2. INSTALL PYTHON3 - if you don't have it on your mac (do not use home-brew)   \n"
 		out += u"go to eg https://www.python.org/downloads/release/python-392/  \n"
 		out += u"and download the 64 bit installer and install (all point and click)  \n"
 		out += u"  \n"
-		out += u"3.DOWNLOAD/INSTALL pyatv  \n"
+		out += u"3. DOWNLOAD/INSTALL pyatv  in a terminal window  \n"
 		out += u"pip3 install pyatv  \n"
 		out += u"  \n"
 		out += u"path to python either    /usr/local/bin/python3  for 10.14.x and earlier (w pip3 install)  \n"
 		out += u"                   or    /usr/bin/python3        for 11.x and later)  \n"
 		out += u"Try 'which python3' in a terminal window to check for path on your MAC)  \n"
 		out += u"  \n"
-		out += u"--------- what does it do  -----  \n"
-		out += u"1. it scan the local network for apple tvs with atvscript.py scan   \n"
-		out += u"2. then is lauchnes a listener for any change of channel, volum dev state etc and populate the indigo dev states accordingly   \n"
-		out += u"3. every xx minutes it will rescan - or you can manually fors a scan in plugin/menu  \n"
+		out += u"##  WHAT DOES IT DO:  \n"
+		out += u"1. it scans the local network for apple TVs with atvscript.py scan   \n"
+		out += u"2. then is lauchnes a listener for any change of channel, volume, dev state etc and populates the indigo dev states accordingly   \n"
+		out += u"3. every xx minutes it will rescan for new apple TVs - or you can manually scan in plugin/menu  \n"
 		out += u"4. you can send predefined commands selectable from a list in menu or action to the apple TVs \n"
-		out += u"5. you can send  free text  commands in menu or action to the apple TVs see below for list \n"
+		out += u"5. you can send free text commands in menu or action to the apple TVs, see below for list \n"
 		out += u"6. you can set certain IP numbers to be ignored, change ip number / mac# of an apple device in device edit if that has changed \n"
 		out += u"-- not yet implemented: play music / video on apple TV. That requires to sync a pin between the apple TV and the plugin \n"
 		out += u"  \n"
-		out += u"--------- Possible things that can go wrong: -----  \n"
+		out += u"##  Possible things that can go wrong:   \n"
 		out += u"   dev state: 'Unclosed client session' or something like it  \n"
 		out += u"      try to use iphone remote app to connect to the appleTV. If that does not work a power cycle appleTV should fix it  \n"
 		out += u"  \n"
-		out += u"--------- available commands in menu and actions -----  \n"
-		out += u"Remote control commands:  \n"
-		out += u"   down - Press key down  \n"
-		out += u"   home - Press key home  \n"
-		out += u"   home_hold - Hold key home  \n"
-		out += u"   left - Press key left  \n"
-		out += u"   menu - Press key menu  \n"
-		out += u"   next - Press key next  \n"
-		out += u"   pause - Press key play  \n"
-		out += u"   play - Press key play  \n"
-		out += u"   play_pause - Toggle between play and pause  \n"
-		out += u"   previous - Press key previous  \n"
-		out += u"   right - Press key right  \n"
-		out += u"   select - Press key select  \n"
-		out += u"   set_position - Seek in the current playing media  \n"
-		out += u"   set_repeat - Change repeat state  \n"
-		out += u"   set_shuffle - Change shuffle mode to on or off  \n"
-		out += u"   skip_backward - Skip backwards a time interval  \n"
-		out += u"   skip_forward - Skip forward a time interval  \n"
-		out += u"   stop - Press key stop  \n"
-		out += u"   suspend - Suspend the device  \n"
-		out += u"   top_menu - Go to main menu (long press menu)  \n"
-		out += u"   up - Press key up  \n"
-		out += u"   volume_down - Press key volume down  \n"
-		out += u"   volume_up - Press key volume up  \n"
-		out += u"   delay=xxxx - Sleep for a certain amount in milliseconds  before next command eg when you send 2 or more commands \n"
-		out += u"Power commands:  \n"
-		out += u"   power_state - Return device power state  \n"
-		out += u"   turn_off - Turn device off  \n"
-		out += u"   turn_on - Turn device on \n"
-		out += u"Metadata commands:  - print result to log\n"
-		out += u"   app - Return information about current app playing something  \n"
-		out += u"   artwork - Return artwork for what is currently playing (or None)  \n"
-		out += u"   artwork_id - Return a unique identifier for current artwork  \n"
-		out += u"   device_id - Return a unique identifier for current device  \n"
-		out += u"   playing - Return what is currently playing   \n"
-		out += u"Playing commands:  - print result to log  \n"
-		out += u"   album - Album of the currently playing song  \n"
-		out += u"   artist - Artist of the currently playing song  \n"
-		out += u"   device_state - Device state, e.g. playing or paused  \n"
-		out += u"   genre - Genre of the currently playing song  \n"
-		out += u"   hash - Create a unique hash for what is currently playing  \n"
-		out += u"   media_type - Type of media is currently playing, e.g. video, music  \n"
-		out += u"   position - Position in the playing media (seconds)  \n"
-		out += u"   repeat - Repeat mode  \n"
-		out += u"   shuffle - If shuffle is enabled or not  \n"
-		out += u"   title - Title of the current media, e.g. movie or song name  \n"
-		out += u"   total_time - Total play time in seconds   \n"
-		out += u"Device commands:  \n"
-		out += u"   artwork_save - Download artwork and save it to artwork.png  \n"
-		out += u"   features - Print a list of all features and options  \n"
+		out += u"## AVAILABE COMMANDS IN MENU AND ACTION   \n"
 		out += u"  \n"
-		out += u"--not implemented yet, need pairing --  \n"  
-		out += u"AirPlay commands:  \n" 
-		out += u"   play_url - Play media from an URL on the device   \n"
+		out += u"### RREMOTE CONTROLL COMMANDS:  \n"
+		out += u"   - down - Press key down  \n"
+		out += u"   - home - Press key home  \n"
+		out += u"   - home_hold - Hold key home  \n"
+		out += u"   - left - Press key left  \n"
+		out += u"   - menu - Press key menu  \n"
+		out += u"   - next - Press key next  \n"
+		out += u"   - pause - Press key play  \n"
+		out += u"   - play - Press key play  \n"
+		out += u"   - play_pause - Toggle between play and pause  \n"
+		out += u"   - previous - Press key previous  \n"
+		out += u"   - right - Press key right  \n"
+		out += u"   - select - Press key select  \n"
+		out += u"   - set_position - Seek in the current playing media  \n"
+		out += u"   - set_repeat - Change repeat state  \n"
+		out += u"   - set_shuffle - Change shuffle mode to on or off  \n"
+		out += u"   - skip_backward - Skip backwards a time interval  \n"
+		out += u"   - skip_forward - Skip forward a time interval  \n"
+		out += u"   - stop - Press key stop  \n"
+		out += u"   - suspend - Suspend the device  \n"
+		out += u"   - top_menu - Go to main menu (long press menu)  \n"
+		out += u"   - up - Press key up  \n"
+		out += u"   - volume_down - Press key volume down  \n"
+		out += u"   - volume_up - Press key volume up  \n"
+		out += u"   - delay=xxxx - Sleep for a certain amount in milliseconds  before next command eg when you send 2 or more commands \n"
 		out += u"  \n"
+		out += u"### POWER COMMANDS:  \n"
+		out += u"   - power_state - Return device power state  \n"
+		out += u"   - turn_off - Turn device off  \n"
+		out += u"   - turn_on - Turn device on  \n"
+		out += u"  \n"
+		out += u"### METADATA COMMANDS, PRINTED TO LOG  \n"
+		out += u"   - app - Return information about current app playing something  \n"
+		out += u"   - artwork - Return artwork for what is currently playing (or None)  \n"
+		out += u"   - artwork_id - Return a unique identifier for current artwork  \n"
+		out += u"   - device_id - Return a unique identifier for current device  \n"
+		out += u"   - playing - Return what is currently playing   \n"
+		out += u"  \n"
+		out += u"### PLAYING COMMANDS:  - print result to log  \n"
+		out += u"   - album - Album of the currently playing song  \n"
+		out += u"   - artist - Artist of the currently playing song  \n"
+		out += u"   - device_state - Device state, e.g. playing or paused  \n"
+		out += u"   - genre - Genre of the currently playing song  \n"
+		out += u"   - hash - Create a unique hash for what is currently playing  \n"
+		out += u"   - media_type - Type of media is currently playing, e.g. video, music  \n"
+		out += u"   - position - Position in the playing media (seconds)  \n"
+		out += u"   - repeat - Repeat mode  \n"
+		out += u"   - shuffle - If shuffle is enabled or not  \n"
+		out += u"   - title - Title of the current media, e.g. movie or song name  \n"
+		out += u"   - total_time - Total play time in seconds   \n"
+		out += u"  \n"
+		out += u"### DEVICE COMMANDS:  \n"
+		out += u"   - artwork_save - Download artwork and save it to artwork.png  \n"
+		out += u"   - features - Print a list of all features and options  \n"
+		out += u"  \n"
+		out += u"## NOT IMPLEMENTED YET, needs pairing --  \n"  
+		out += u"### AirPlay commands:  \n" 
+		out += u"   - play_url - Play media from an URL on the device   \n"
+		out += u"  \n"
+		out += u"## DETAILED logs are in  \n"
+		out += u"   ../Perceptive Automation/Indigo x.y/Logs/com.karlwachs.appleTV/plugin.log   \n"
 		out += u"===============================================================================  \n"
 
 		self.indiLOG.log(20,out)
@@ -380,6 +396,7 @@ class Plugin(indigo.PluginBase):
 		out += u"\nParameters -----------"
 		out += u"\npath To python3            : {}".format(self.pathToPython3)
 		out += u"\ncheck for new devices every: {:.0f} minutes".format(self.everyxSecGetNewDevices/60)
+		out += u"\nignored IP numbers: {}".format(self.ignoreDevices)
 		out += u"\nDevices --------------"
 		for dev in indigo.devices.iter(u"props.isAppleTV"):
 			out += u"\n{}; id:{}; enabled:{}; ignored:{}".format(dev.name, dev.id, dev.enabled, dev.states["ip"] in self.ignoreDevices)
@@ -438,6 +455,7 @@ class Plugin(indigo.PluginBase):
 				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e) )
 			return []
 		return xList
+
 	####-----------------	 ---------
 	def execCommandToAppleTVCALLBACKaction(self, valuesDict, typeId):
 		return self.execCommandToAppleTVCALLBACK(valuesDict.props,typeId)
@@ -544,12 +562,13 @@ class Plugin(indigo.PluginBase):
 		self.postLoop()
 
 
+####-----------------   end plugin             ---------
 	def postLoop(self):
-
 		try:
 			self.pluginState   = "stop"
 			self.pluginPrefs["ignoreDevices"] = json.dumps(self.ignoreDevices)
 			indigo.server.savePluginPrefs()	
+			time.sleep(1)
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
 				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
@@ -569,17 +588,18 @@ class Plugin(indigo.PluginBase):
 								newIp = self.updateStatesAfterDevEditSave[devId][state]
 								oldIP = dev.states["ip"]
 								self.stopThreadsForPush(oldIP)
-								self.indiLOG.log(10,u"resetting ip:{} to new ip:{}".format(oldIP, newIp))
+								self.indiLOG.log(10,u"changing for dev:{}  ip:{} to new ip:{}".format(dev.name, oldIP, newIp))
 								self.stopThreadsForPush(oldIP)
-								self.sleep(5) # wait for old tyhread to stop, then delete reference to it 
+								self.sleep(5) # wait for old thread to stop, then delete reference to it 
 								del self.scanThreadsForPush[oldIP]
-								self.startThreadsForPush(dev.id, newIp)
 								# update state and address with new IP
 								props = dev.pluginProps
 								props["address"] = self.fixIP(newIp)
 								dev.replacePluginPropsOnServer(props)
 								dev = indigo.devices[dev.id]
 								dev.updateStateOnServer(state, newIp )
+								# start listening process w new ip number
+								self.startThreadsForPush(dev.id, newIp)
 							else:
 								dev.updateStateOnServer(state, self.updateStatesAfterDevEditSave[devId][state] )
 
@@ -661,6 +681,9 @@ class Plugin(indigo.PluginBase):
 
 
 	####-----------------	 ---------
+	#### tbis is the thread that will contiinously listen to any changes  (playing) in apple TV devcies
+	#### will update the corresponding indigo devices
+	####-----------------	 ---------
 	def listenToDevices(self, ip, devId):
 
 		try:
@@ -672,21 +695,22 @@ class Plugin(indigo.PluginBase):
 			newlinesFromServer = ""
 			restartListenerAfterSecWithNoMessages = 600.
 			while True:
+				## check if we should stop (ignord, plugin ending, or stop command for THIS thread)
 				if ip in self.ignoreDevices:  
-					try:	self.killPidIfRunning(ip, function="push_updates")
+					try:	self.killProcessIfRunning(ip, function="push_updates")
 					except:	pass
 					return
 				# stop thread when asked to
 				if self.pluginState == "stop" or self.scanThreadsForPush[ip]["status"] == "stop": 
-					try:	self.killPidIfRunning(ip, function="push_updates")
+					try:	self.killProcessIfRunning(ip, function="push_updates")
 					except:	pass
 					break
 				self.sleep(msgSleep)
 				msgSleep = min(0.5,msgSleep)
 
-				# restart the listener process after xx secs  w/o any message
+				# check if restart the listener process after xx secs  w/o any message
 				if time.time() - self.scanThreadsForPush[ip]["lastRead"] > restartListenerAfterSecWithNoMessages:
-					try:	self.killPidIfRunning(ip, function="push_updates" )
+					try:	self.killProcessIfRunning(ip, function="push_updates" )
 					except:	pass
 					ListenProcessFileHandle = ""
 					self.sleep(5)
@@ -724,7 +748,7 @@ class Plugin(indigo.PluginBase):
 							try: out+= u"fileNo: {}".format(ListenProcessFileHandle.stdout.fileno() )
 							except: pass
 							if unicode(e).find(u"[Errno 22]") > -1:  # "Errno 22" is  general read error "wrong parameter"
-								out+= u"\n ..      try lowering/increasing read buffer parameter in config" 
+								out+= u"\n ..      contect developer w logfile " 
 								if self.decideMyLog(u"Threads"):self.indiLOG.log(30,out)
 							else:
 								if self.decideMyLog(u"Threads"):self.indiLOG.log(40,out)
@@ -733,29 +757,30 @@ class Plugin(indigo.PluginBase):
 				if len(newlinesFromServer) < 3: continue
 
 				if self.decideMyLog(u"Threads"):self.indiLOG.log(10,"=== listenToDevices  ip:{}, newlines:{}".format(ip, newlinesFromServer))
-				## try tu onpack it 
+				## try to onpack it 
 				try: 
-					""" when apple tv is off, then restart
-					{"result": "failure", "datetime": "2021-03-27T15:04:37.495967-05:00", "exception": "[Errno 60] Operation timed out", "stacktrace": "Traceback (most recent call last):\n  File \"/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/asyncio/selector_events.py\", line 856, in _read_ready__data_received\n    data = self._sock.recv(self.max_size)\nTimeoutError: [Errno 60] Operation timed out\n", "connection": "lost"}
-					{"result": "success", "datetime": "2021-03-27T15:04:37.500189-05:00", "push_updates": "finished"}
-					{"result": "failure", "datetime": "2021-03-27T15:04:37.517832-05:00", "error": "Task was destroyed but it is pending!"}
-					"""
 					lines = (newlinesFromServer.strip("\n")).split("\n")
 					for line in lines:
 						#self.indiLOG.log(10,"=== listenToDevices  items:{}".format(xx))
 						js = json.loads(line)
+						""" when apple tv is off, then restart, these are the message that we could receive
+						{"result": "failure", "datetime": "2021-03-27T15:04:37.495967-05:00", "exception": "[Errno 60] Operation timed out", "stacktrace": "Traceback (most recent call last):\n  File \"/Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/asyncio/selector_events.py\", line 856, in _read_ready__data_received\n    data = self._sock.recv(self.max_size)\nTimeoutError: [Errno 60] Operation timed out\n", "connection": "lost"}
+						{"result": "success", "datetime": "2021-03-27T15:04:37.500189-05:00", "push_updates": "finished"}
+						{"result": "failure", "datetime": "2021-03-27T15:04:37.517832-05:00", "error": "Task was destroyed but it is pending!"}
+						"""
 						if ( ( "connection"  in js and js["connection"]  == "closed") 				or
 							 ( u"error"  	 in js and js[u"error"] 	 == u"device_not_found") 	or 
 							 ( u"connection" in js and js[u"connection"] == u"lost") 				or
 							 ( u"exception"  in js and js[u"exception"].find(u"timed out") >-1)  
 							):
 							if self.decideMyLog(u"Threads"):self.indiLOG.log(10,"=== listenToDevices  ip:{}, connection lost:{}".format(ip, newlinesFromServer))
-							try:	self.killPidIfRunning(ip, function="push_updates")
+							try:	self.killProcessIfRunning(ip, function="push_updates")
 							except:	pass
 							ListenProcessFileHandle = "" # == restart
 							msgSleep = 5
+
 						## send result to fill device states
-						self.fillScanIntoDevStates(indigo.devices[devId],js )
+						self.fillScanIntoDevStates(indigo.devices[devId], js)
 						newlinesFromServer = ""
 						self.scanThreadsForPush[ip]["lastRead"] = time.time()
 				except	Exception, e:
@@ -770,7 +795,7 @@ class Plugin(indigo.PluginBase):
 
 
 	####-----------------	 ---------
-	def killPidIfRunning(self, ip, function=""):
+	def killProcessIfRunning(self, ip, function=""):
 		if function =="":
 			cmd = "ps -ef | grep '/atvscript.py' | grep '"+ip+"' | grep -v grep"
 		else:
@@ -814,7 +839,7 @@ class Plugin(indigo.PluginBase):
 
 			self.lastGetNewDevices = time.time()
 	
-			## first do a script request scan retruns a nice json	
+			## first do a script request scan, it retruns a nice json for all devices found
 			data = self.getscriptScan()
 
 			if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========getNewDevices scan result:{}".format(json.dumps(data, sort_keys=True, indent=2)))
@@ -833,17 +858,9 @@ class Plugin(indigo.PluginBase):
 				#if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========new dev {}, found:{}".format(ip, ipFound))
 
 				if not ipFound:
-					## if new fill some properties with atvremote,  scan does not get all parameters
 					#if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========new dev doing remote.py {}".format(ip))
 					if u"MAC" not in data[ip]: 
 						data[ip][u"MAC"] = ""
-					if False:
-						data2 = self.getatvremoteScan(ip=ip)
-						if ip in data2:
-							if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========getatvremoteScan result:{}".format(data2))
-							if u"MRPCredentials" 		in data2[ip]: 		data[ip][u"MRPCredentials"] 	= data2[ip][u"MRPCredentials"]
-							if u"AIRPLAYCredentials" 	in data2[ip]: 		data[ip][u"AIRPLAYCredentials"] = data2[ip][u"AIRPLAYCredentials"]
-							if u"DMAPCredentials" 		in data2[ip]: 		data[ip][u"DMAPCredentials"] 	= data2[ip][u"DMAPCredentials"]
 
 					## create new indigo device
 					devProps = {}
@@ -855,7 +872,7 @@ class Plugin(indigo.PluginBase):
 					devProps[u"AllowSensorValueChange"]		= False
 					devProps[u"overwriteIP"]				= ip
 					devProps[u"overwriteMAC"]				= data[ip][u"MAC"]
-					devProps[u"overwritePIN"]				= 1234
+					devProps[u"overwritePIN"]				= 1234  # not used yet, will need to add to find setup pairing
 					dev = indigo.device.create(
 					protocol =		 indigo.kProtocol.Plugin,
 					address =		 self.fixIP(ip),
@@ -866,12 +883,13 @@ class Plugin(indigo.PluginBase):
 					props =			 devProps)
 					#folder =		 self.folderNameIDSystemID,
 					dev.updateStateOnServer(u"ip",ip)
-				## fille device states
+
+				## fill device states
 				chList =[]
 				for key, val in self.statesToATVMapppingForNewDevs.items():
 					if self.checkIfChanged(key, val, dev.states, data[ip]): chList.append({u"key":key, u"value":data[ip][val]}) 
 				for ch in chList:
-					if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"{}:  change states {}".format(dev.name, ch))
+					if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"{}:  change state {}".format(dev.name, ch))
 
 				dev.updateStatesOnServer(chList)
 				## start listener process if new device
@@ -885,6 +903,7 @@ class Plugin(indigo.PluginBase):
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
 				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
+
 	####-----------------	 ---------
 	def fillScanIntoDevStates(self, dev, data):
 		try:
@@ -911,6 +930,8 @@ class Plugin(indigo.PluginBase):
 			elif self.statesToATVMapppingFromScan["currentlyPlaying_DeviceState"] in data:
 					dev.updateStateImageOnServer(indigo.kStateImageSel.PowerOn)
 					chList.append({u"key":u"status", u"value":data[self.statesToATVMapppingFromScan["currentlyPlaying_DeviceState"]], u"uiValue":data[self.statesToATVMapppingFromScan["currentlyPlaying_DeviceState"]]}) 
+			else:
+				pass
 
 			## now fill the states
 			dev.updateStatesOnServer(chList)
@@ -939,7 +960,7 @@ class Plugin(indigo.PluginBase):
 	####-----------------	 ---------
 	def getscriptScan(self):
 		"""
-python3 atvscript.py scan 
+python3 atvscript.py scan   returns:
 {"result": "success", "datetime": "2021-03-25T21:47:46.966942-05:00", 
 "devices": [
 {"name": "Bedroom", "address": "192.168.1.48", "identifier": "01F74624-B8BB-4EF9-9E9E-4A6C42EEC75F", 
@@ -948,6 +969,7 @@ python3 atvscript.py scan
   "services": [{"protocol": "mrp", "port": 49152}, {"protocol": "AIRPLAY", "port": 7000}]}]}
 		"""
 		try:
+			out = "  "
 			retDict = {}
 			cmd = [self.pathToPython3, self.pathToPlugin+"atvscript.py", "scan"]
 			if self.decideMyLog(u"GetData"): self.indiLOG.log(10,u"=========getscriptScan cmd:{}".format(cmd))
@@ -984,87 +1006,7 @@ python3 atvscript.py scan
 		return {}
 
 	####-----------------	 ---------
-	def getatvremoteScan(self, ip=""):
-		"""
-python3 atvremote.py scan
-Scan Results
-========================================
-       Name: Living Room
-   Model/SW: 4K tvOS 14.3
-    Address: 192.168.1.47
-        MAC: D0:D2:B0:88:7B:77   <=========
- Deep Sleep: False
-Identifiers:
- - 0721B1F4-4CE5-4EA7-86B7-BE4F2FCAAA30
- - D0:D2:B0:88:7B:77
-Services:
- - Protocol: MRP, Port: 49152, Credentials: None
- - Protocol: AIRPLAY, Port: 7000, Credentials: None
-
-       Name: Bedroom
-   Model/SW: 4K tvOS 14.5
-    Address: 192.168.1.48
-        MAC: 40:CB:C0:D0:FF:C4
- Deep Sleep: False
-Identifiers:
- - 01F74624-B8BB-4EF9-9E9E-4A6C42EEC75F
- - 40:CB:C0:D0:FF:C4
-Services:
- - Protocol: MRP, Port: 49153, Credentials: None
- - Protocol: AIRPLAY, Port: 7000, Credentials: None
-		"""
-		try:
-			retDict = {}
-			if ip == "":
-				cmd = [self.pathToPython3, self.pathToPlugin+"atvremote.py", "scan"]
-			else:
-				cmd = [self.pathToPython3, self.pathToPlugin+"atvremote.py", "--scan-hosts", ip, "scan"]
-
-			if self.decideMyLog(u"GetData"): self.indiLOG.log(10,u"=========getatvremoteScan cmd:{}".format(cmd))
-			out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
-			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"========= getatvremoteScan ret:\n{}".format(out[0]))
-			if out[0].find(u"Scan Results") 	== -1: return {}
-			if out[0].find(u"       Name: ") 	== -1: return {}
-			data = out[0].split(u"       Name: ")[1:]
-			
-			for section in data:
-				ip		= section.split(u"Address: ")[1].split("\n")[0].strip()
-				retDict[ip] 						= {}
-				theItems 							= section.split("\n")
-				retDict[ip]["name"] 				= theItems[0]
-				retDict[ip][u"model"] 				= section.split(u"Model/SW: ")[1].split("\n")[0].strip()
-				retDict[ip][u"MAC"] 				= section.split(u"MAC: ")[1].split("\n")[0].strip()
-				retDict[ip][u"deepSleep"] 			= section.split(u"Deep Sleep: ")[1].split("\n")[0].strip()
-				retDict[ip][u"MRPCredentials"] 		= ""
-				retDict[ip][u"AIRPLAYCredentials"] 	= ""
-				retDict[ip][u"identifier"] 			= ""
-
-				rest = section.split(u"Identifiers:\n")[1]
-				rest = rest.split(u"\nServices:\n")
-				xxx  = rest[0].split(u"\n")
-				for yy in xxx:
-					if yy.find(u" - ") >-1:
-						zz = yy.split(" - ")[1]
-						if zz.find("-")>-1: retDict[ip][u"identifier"] = zz
-
-				xxx  = rest[1].split(u"\n")
-				for yy in xxx:
-					if yy.find(u"Protocol: ") >-1:
-						zz = yy.split(u"Protocol: ")[1]
-						gg = zz.split(", ")
-						tag = gg[0].upper()
-						for hh in gg[1:]:
-							jj =  hh.split(u": ")
-							retDict[ip][tag+jj[0]] = jj[1] 
-						
-			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========getatvremoteScan dict:{}".format(json.dumps(retDict, sort_keys=True, indent=2)))
-			
-		except	Exception, e:
-			if unicode(e).find(u"None") == -1:
-				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
-		return retDict
-
-
+	## not used anymore 
 
 
 ####-----------------	 ---------

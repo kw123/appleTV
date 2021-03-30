@@ -8,16 +8,7 @@
 		<Label>pyatv is maintained by Postlund, for details:</Label>
 	</Field>
 <Field id="infoLabelinstall" type="label"  alignText="left" fontSize="small"> 
-		<Label>======== STEPS to make it work ============
-1. INSTALL X-CODE
-xcode-select —install
-
-2. INSTALL PYTHON3 - if you don't have it on your mac (do not use home-brew) 
-go to eg https://www.python.org/downloads/release/python-392/
-and download the 64 bit installer and install (all point and click)
-
-3.DOWNLOAD/INSTALL pyatv
-pip3 install pyatv</Label> 
+		<Label>Do plugin / menu / PRINT help for info</Label> 
 	</Field>
 
 	<Field id="simpleSeparator22" 		type="separator"/>
@@ -26,14 +17,14 @@ pip3 install pyatv</Label>
 		<Label>== General Parameters for Plugin </Label>  
 	</Field>
 
-	<Field    id="everyxSecGetNewDevices"  	type="menu" defaultValue="3600" tooltip="">
+	<Field    id="everyxSecGetNewDevices"  	type="menu" defaultValue="86400" tooltip="">
 		<Label>Scan for new apple TVs every:</Label>
 			<List>
-			<Option value="600"  >10 minutes</Option>
-			<Option value="3600" >1 hour</Option>
+			<Option value="600"   >10 minutes</Option>
+			<Option value="3600"  >1 hour</Option>
+			<Option value="86400" >1 day</Option>
 			</List>
 	</Field>
-
 
 	<Field    id="pathToPython3"  	type="textfield" defaultValue="/usr/local/bin/python3" tooltip="">
 		<Label>path to python3:</Label>
@@ -47,20 +38,15 @@ Try "which python3" in a terminal window to check for path on your MAC
 
 	<Field id="simpleSeparator222" type="separator"/>
 
-
 	<Field id="infoLabel226" type="label"> <Label>== Debug:...</Label>  </Field>
 
-	<Field    id="debugGetData"       type="checkbox"  defaultValue="false"    > <Label>... (1) get Data:</Label>  </Field>
-	<Field    id="debugReceiveData"   type="checkbox"  defaultValue="false"    > <Label>... (2) receive Data:</Label>  </Field>
-	<Field    id="debugConsumption"   type="checkbox"  defaultValue="false"    > <Label>... (3) consumption of data:</Label>  </Field>
-	<Field    id="debugThreads"   	  type="checkbox"  defaultValue="false"    > <Label>... (4) Threads for listening to whats playing:</Label>  </Field>
-	<Field    id="debugAction"         type="checkbox"  defaultValue="false"   > <Label>... (5) Action comamnds and response:</Label>  </Field>
-	<Field    id="debugBasic"         type="checkbox"  defaultValue="false"    > <Label>... (10) basic:</Label>  </Field>
-	<Field    id="debugSpecial"       type="checkbox"  defaultValue="false"    > <Label>... (19) Special debug for development:</Label>  </Field>
-	<Field    id="debugall"           type="checkbox"  defaultValue="false"    > <Label>... (20) all of the above = everything:</Label>  </Field>
-	<Field id="logFileActive2" type="label"> 
-		<Label> send DETAILED logs to: 
-   ..Perceptive Automation/Indigo x.y/Logs/com.karlwachs.appleTV/plugin.log </Label>
-	</Field>
+	<Field id="debugGetData"			type="checkbox" defaultValue="false" > <Label>... (1) get Data:</Label>  </Field>
+	<Field id="debugReceiveData"		type="checkbox" defaultValue="false" > <Label>... (2) receive Data:</Label>  </Field>
+	<Field id="debugConsumption"		type="checkbox" defaultValue="false" > <Label>... (3) consumption of data:</Label>  </Field>
+	<Field id="debugThreads"			type="checkbox" defaultValue="false" > <Label>... (4) Threads for listening to whats playing:</Label>  </Field>
+	<Field id="debugAction"			type="checkbox" defaultValue="false" > <Label>... (5) Action comamnds and response:</Label>  </Field>
+	<Field id="debugBasic"			type="checkbox" defaultValue="false" > <Label>... (10) basic:</Label>  </Field>
+	<Field id="debugSpecial"			type="checkbox" defaultValue="false" > <Label>... (19) Special debug for development:</Label>  </Field>
+	<Field id="debugall"				type="checkbox" defaultValue="false" > <Label>... (20) all of the above = everything:</Label>  </Field>
 
 </PluginConfig>
