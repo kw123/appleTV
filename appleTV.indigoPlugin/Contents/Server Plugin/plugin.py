@@ -25,6 +25,25 @@ import copy
 
 from checkIndigoPluginName import checkIndigoPluginName 
 
+
+######### set new  pluginconfig defaults
+# this needs to be updated for each new property added to pluginprops. 
+# indigo ignores the defaults of new properties after first load of the plugin 
+
+kDefaultPluginPrefs = {
+				"everyxSecGetNewDevices":	"86400",
+				"pathToPython3":			"/usr/local/bin/python3",
+				"debugGetData":				False,
+				"debugConsumption":			False,
+				"debugReceiveData":			False,
+				"debugThreads":				False,
+				"debugAction":				False,
+				"debugBasic":				False,
+				"debugSpecial":				False,
+				"debugall":					False
+				}
+
+
 dataVersion = 0.1
 
 ## Static parameters, not changed in pgm
@@ -845,59 +864,63 @@ class Plugin(indigo.PluginBase):
 			if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========getNewDevices scan result:{}".format(json.dumps(data, sort_keys=True, indent=2)))
 
 			for ip in data:
-				if ip in self.ignoreDevices: continue
-				ipFound = False
-				for dev in indigo.devices.iter(u"props.isAppleTV"):
-					if u"ip" not in dev.states: continue
-					if dev.states[u"ip"] == ip:
-						ipFound = True
+				try:
+					if ip in self.ignoreDevices: continue
+					ipFound = False
+					for dev in indigo.devices.iter(u"props.isAppleTV"):
+						if u"ip" not in dev.states: continue
+						if dev.states[u"ip"] == ip:
+							ipFound = True
+							break
+					if ipFound and not dev.enabled:
 						break
-				if ipFound and not dev.enabled:
-					break
 
-				#if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========new dev {}, found:{}".format(ip, ipFound))
+					#if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========new dev {}, found:{}".format(ip, ipFound))
 
-				if not ipFound:
-					#if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========new dev doing remote.py {}".format(ip))
-					if u"MAC" not in data[ip]: 
-						data[ip][u"MAC"] = ""
+					if not ipFound:
+						#if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"=========new dev doing remote.py {}".format(ip))
+						if u"MAC" not in data[ip]: 
+							data[ip][u"MAC"] = ""
 
-					## create new indigo device
-					devProps = {}
-					devProps[u"isAppleTV"]					= True
-					devProps[u"SupportsOnState"]			= False
-					devProps[u"SupportsSensorValue"]		= False
-					devProps[u"SupportsStatusRequest"]		= False
-					devProps[u"AllowOnStateChange"]			= False
-					devProps[u"AllowSensorValueChange"]		= False
-					devProps[u"overwriteIP"]				= ip
-					devProps[u"overwriteMAC"]				= data[ip][u"MAC"]
-					devProps[u"overwritePIN"]				= 1234  # not used yet, will need to add to find setup pairing
-					dev = indigo.device.create(
-					protocol =		 indigo.kProtocol.Plugin,
-					address =		 self.fixIP(ip),
-					name =			 "appletv_" + ip,
-					description =	 data[ip][u"name"],
-					pluginId =		 self.pluginId,
-					deviceTypeId =	 "appleTV",
-					props =			 devProps)
-					#folder =		 self.folderNameIDSystemID,
-					dev.updateStateOnServer(u"ip",ip)
+						## create new indigo device
+						devProps = {}
+						devProps[u"isAppleTV"]					= True
+						devProps[u"SupportsOnState"]			= False
+						devProps[u"SupportsSensorValue"]		= False
+						devProps[u"SupportsStatusRequest"]		= False
+						devProps[u"AllowOnStateChange"]			= False
+						devProps[u"AllowSensorValueChange"]		= False
+						devProps[u"overwriteIP"]				= ip
+						devProps[u"overwriteMAC"]				= data[ip][u"MAC"]
+						devProps[u"overwritePIN"]				= 1234  # not used yet, will need to add to find setup pairing
+						dev = indigo.device.create(
+						protocol =		 indigo.kProtocol.Plugin,
+						address =		 self.fixIP(ip),
+						name =			 "appletv_" + ip,
+						description =	 data[ip][u"name"],
+						pluginId =		 self.pluginId,
+						deviceTypeId =	 "appleTV",
+						props =			 devProps)
+						#folder =		 self.folderNameIDSystemID,
+						dev.updateStateOnServer(u"ip", ip)
 
-				## fill device states
-				chList =[]
-				for key, val in self.statesToATVMapppingForNewDevs.items():
-					if self.checkIfChanged(key, val, dev.states, data[ip]): chList.append({u"key":key, u"value":data[ip][val]}) 
-				for ch in chList:
-					if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"{}:  change state {}".format(dev.name, ch))
+					## fill device states
+					chList =[]
+					for key, val in self.statesToATVMapppingForNewDevs.items():
+						if self.checkIfChanged(key, val, dev.states, data[ip]): chList.append({u"key":key, u"value":data[ip][val]}) 
+					for ch in chList:
+						if self.decideMyLog(u"Consumption"): self.indiLOG.log(10,u"{}:  change state {}".format(dev.name, ch))
 
-				dev.updateStatesOnServer(chList)
-				## start listener process if new device
-				if not ipFound:
-					if ip in self.scanThreadsForPush[ip]:
-						self.stopThreadsForPush(ip)
-						self.sleep(4)
-					self.startThreadsForPush(dev.id, ip)
+					dev.updateStatesOnServer(chList)
+					## start listener process if new device
+					if not ipFound:
+						if ip in self.scanThreadsForPush[ip]:
+							self.stopThreadsForPush(ip)
+							self.sleep(4)
+						self.startThreadsForPush(dev.id, ip)
+				except	Exception, e:
+					self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
+					self.indiLOG.log(40,u"ip:{} data:{}".format(ip, data))
 
 
 		except	Exception, e:

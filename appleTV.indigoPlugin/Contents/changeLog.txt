@@ -1,3 +1,13 @@
+changes in V 1.0.9@ 2021-04-08
+==================    
+1. changed steup for default values in plugin.config
+2. added addition try except for new devices, in case of bad data return 
+3. cosmetic changes in menus
+4. added print help to logfile in menu
+5. added check if python3 is properly installed 
+
+
+
 changes in V 1.0.6@ 2021-03-29
 ==================    
 1. cosmetic changes in menus
