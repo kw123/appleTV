@@ -195,8 +195,8 @@ class Plugin(indigo.PluginBase):
 		if not os.path.isfile(self.pathToPython3):
 				self.indiLOG.log(30,u" {}  is not present on this mac, see logfile on how to install python3".format(self.pathToPython3) )
 				self.printHelpMenu( {}, "")
-				self.sleep(2000)
-				exit(0) 
+				self.sleep(5)
+				return 
 
 		return 
 
@@ -204,6 +204,7 @@ class Plugin(indigo.PluginBase):
 	####-----------------	 ---------
 	def isValidIP(self, ip0):
 		ipx = ip0.split(u".")
+		if ip0 == u"localhost":							return True
 		if len(ipx) != 4:								return False
 
 		else:
@@ -328,13 +329,13 @@ class Plugin(indigo.PluginBase):
 		out += u"                   or    /usr/bin/python3        for 11.x and later)  \n"
 		out += u"Try 'which python3' in a terminal window to check for path on your MAC)  \n"
 		out += u"  \n"
-		out += u"##  WHAT DOES IT DO:  \n"
+		out += u"##  WHAT DOES THE PLUGIN DO:  \n"
 		out += u"1. it scans the local network for apple TVs with atvscript.py scan   \n"
 		out += u"2. then is lauchnes a listener for any change of channel, volume, dev state etc and populates the indigo dev states accordingly   \n"
 		out += u"3. every xx minutes it will rescan for new apple TVs - or you can manually scan in plugin/menu  \n"
-		out += u"4. you can send predefined commands selectable from a list in menu or action to the apple TVs \n"
-		out += u"5. you can send free text commands in menu or action to the apple TVs, see below for list \n"
-		out += u"6. you can set certain IP numbers to be ignored, change ip number / mac# of an apple device in device edit if that has changed \n"
+		out += u"4. you can send predefined commands selectable from a list in menu or action to the apple TVs  \n"
+		out += u"5. you can send free text commands in menu or action to the apple TVs, see below for list  \n"
+		out += u"6. you can set certain IP numbers to be ignored (in menu), change ip number / mac# of an apple device in device edit if that has changed  \n"
 		out += u"-- not yet implemented: play music / video on apple TV. That requires to sync a pin between the apple TV and the plugin \n"
 		out += u"  \n"
 		out += u"##  Possible things that can go wrong:   \n"
@@ -521,8 +522,16 @@ class Plugin(indigo.PluginBase):
 	###########################	   MAIN LOOP  ############################
 	####-----------------init  main loop ---------
 	def fixBeforeRunConcurrentThread(self):
+		try:
+			for ii in range(18):
+				if os.path.isfile(self.pathToPython3): return True
+				self.indiLOG.log(30,u" {}  is not present on this mac, see logfile on how to install python3, you have 3 minutes to setup config".format(self.pathToPython3) )
+				self.sleep(10)
+		except	Exception, e:
+			if unicode(e).find(u"None") == -1:
+				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
 
-		return True
+		return False
 
 
 
@@ -540,7 +549,7 @@ class Plugin(indigo.PluginBase):
 		self.pluginState   = "running"
 		self.dorunConcurrentThread()
 
-		self. postLoop()
+		self.postLoop()
 		self.sleep(1)
 		if self.quitNow !="":
 			indigo.server.log( u"runConcurrentThread stopping plugin due to:  ::::: {} :::::".format(self.quitNow))
@@ -561,6 +570,7 @@ class Plugin(indigo.PluginBase):
 		self.lastGetNewDevices	= 0
 		self.lastcheckIfThreadIsRunning = 0
 		self.loopCount 			= 0
+
 
 		try:
 			while True:
