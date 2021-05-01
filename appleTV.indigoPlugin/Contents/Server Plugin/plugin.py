@@ -189,14 +189,6 @@ class Plugin(indigo.PluginBase):
 		self.everyxSecGetNewDevices				= float(self.pluginPrefs.get("everyxSecGetNewDevices",86400))
 		self.everyxSeccheckIfThreadIsRunning	= 30
 
-		self.pathToPython3 						= self.pluginPrefs.get("pathToPython3", "/usr/local/bin/python3")
-		self.indiLOG.log(20,  u"path To python3                {}".format(self.pathToPython3))
-		self.indiLOG.log(20,  u"check for new devices every    {:.0f} minutes".format(self.everyxSecGetNewDevices/60))
-		if not os.path.isfile(self.pathToPython3):
-				self.indiLOG.log(30,u" {}  is not present on this mac, see logfile on how to install python3".format(self.pathToPython3) )
-				self.printHelpMenu( {}, "")
-				self.sleep(5)
-				return 
 
 		return 
 
@@ -278,8 +270,8 @@ class Plugin(indigo.PluginBase):
 				self.printHelpMenu( {}, "")
 				return (False, valuesDict, valuesDict)
 
-			self.indiLOG.log(20,  u"check for new devices every     {:.0f} minutes".format(self.everyxSecGetNewDevices/60))
-			self.indiLOG.log(20,  u"path To python3                 {}".format(self.pathToPython3))
+			self.indiLOG.log(20, u"CONFIG: check for new devices every    {:.0f} minutes".format(self.everyxSecGetNewDevices/60))
+			self.indiLOG.log(20, u"CONFIG: path To python3                {}".format(self.pathToPython3))
 
 			return True, valuesDict
 
@@ -525,10 +517,28 @@ class Plugin(indigo.PluginBase):
 	####-----------------init  main loop ---------
 	def fixBeforeRunConcurrentThread(self):
 		try:
-			for ii in range(18):
+			self.pathToPython3 = self.pluginPrefs.get("pathToPython3","" )
+			if self.pathToPython3 == u"":
+				self.indiLOG.log(30,u"==== python3 path not setup, trying to find path to python3 ====" )
+				if os.path.isfile("/usr/local/bin/python3"):
+					self.pathToPython3  =  "/usr/local/bin/python3"
+				elif os.path.isfile("/usr/bin/python3"):
+					self.pathToPython3  =  "/usr/bin/python3"
+				self.pluginPrefs["pathToPython3"] = self.pathToPython3 
+
+				if self.pluginPrefs["pathToPython3"] != "":
+					self.indiLOG.log(20,u"==== ... found, setting path to python3 to: >>{}<<".format(self.pathToPython3) )
+
+			if not os.path.isfile(self.pathToPython3):
+					self.indiLOG.log(40,u"path to python3 >>{}<< is not present on this mac, see logfile on how to install python3".format(self.pathToPython3) )
+					self.printHelpMenu( {}, "")
+
+			timeLeft = 180
+			for ii in range(36):
 				if os.path.isfile(self.pathToPython3): return True
-				self.indiLOG.log(30,u" {}  is not present on this mac, see logfile on how to install python3, you have 3 minutes to setup config".format(self.pathToPython3) )
-				self.sleep(10)
+				if ii%4 == 0: self.indiLOG.log(30,u"python3 >{}<  is not present on this mac, see logfile on how to install python3, you have {} secs to setup config".format(self.pathToPython3, timeLeft) )
+				self.sleep(5)
+				timeLeft -= 5
 		except	Exception, e:
 			if unicode(e).find(u"None") == -1:
 				self.indiLOG.log(40,u"in Line {} has error={}".format(sys.exc_traceback.tb_lineno, e))
@@ -543,9 +553,11 @@ class Plugin(indigo.PluginBase):
 
 
 		if not self.fixBeforeRunConcurrentThread():
-			self.indiLOG.log(40,u"..error in startup")
+			self.indiLOG.log(40,u".. error in startup, exiting plugin")
 			self.sleep(10)
 			return
+		self.indiLOG.log(20, u"START:  path To python3                {}".format(self.pathToPython3))
+		self.indiLOG.log(20, u"START:  check for new devices every    {:.0f} minutes".format(self.everyxSecGetNewDevices/60))
 
 
 		self.pluginState   = "running"
@@ -563,7 +575,7 @@ class Plugin(indigo.PluginBase):
 ####-----------------   main loop            ---------
 	def dorunConcurrentThread(self):
 
-		self.indiLOG.log(20,u" start   runConcurrentThread, initialized loop settings")
+		self.indiLOG.log(20, u"START:  runConcurrentThread, initialized loop settings")
 
 
 		indigo.server.savePluginPrefs()
@@ -915,6 +927,11 @@ class Plugin(indigo.PluginBase):
 						props =			 devProps)
 						#folder =		 self.folderNameIDSystemID,
 						dev.updateStateOnServer(u"ip", ip)
+						self.indiLOG.log(30,u'=====================================================================================================================================')
+						self.indiLOG.log(20,u'== New apple tv device created:"{}"; with MAC#:{}; NO FURTHER action needed to activat/use device =='.format(dev.name, data[ip][u"MAC"]))
+						self.indiLOG.log(20,u'== check "plugin/menu/PRINT help to logfile" for available actions etc. ==')
+						self.sleep(0.5)
+						self.indiLOG.log(30,u'=====================================================================================================================================')
 
 					## fill device states
 					chList =[]

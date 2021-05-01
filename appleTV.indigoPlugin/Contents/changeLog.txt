@@ -1,3 +1,12 @@
+changes in v1.0.14@ 2021-05-01
+==================  
+1. will now try to auto detect python3, 
+   will exit after 3 minutes if still not found / defined.
+   during these 3 minutes you can setup python3 or set the path to python3 in config
+2. will show a detailed message in indigo log for each new apple device created 
+
+
+
 changes in v1.0.12@ 2021-05-01
 ==================  
 1. updated help texts to reflect: do not create apple tv devices manually, all done by the plugin automatically
