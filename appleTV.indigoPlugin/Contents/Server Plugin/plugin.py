@@ -924,7 +924,7 @@ class Plugin(indigo.PluginBase):
 					dev.updateStatesOnServer(chList)
 					## start listener process if new device
 					if not ipFound:
-						if ip in self.scanThreadsForPush[ip]:
+						if ip in self.scanThreadsForPush:
 							self.stopThreadsForPush(ip)
 							self.sleep(4)
 						self.startThreadsForPush(dev.id, ip)

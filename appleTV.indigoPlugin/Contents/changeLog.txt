@@ -1,3 +1,7 @@
+changes in v1.0.11@ 2021-04-30
+==================  
+1. fixed in Line 927 has error=
+
 changes in V 1.0.10@ 2021-04-30
 ==================    
 1. when python3 is not installed don't go to sleep in startup, but in concurrent loop
