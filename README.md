@@ -95,4 +95,3 @@ Try 'which python3' in a terminal window to check for path on your MAC)
   
 ## DETAILED logs are in  
    ../Perceptive Automation/Indigo x.y/Logs/com.karlwachs.appleTV/plugin.log   
-==============
