@@ -16,7 +16,8 @@
 				<Field id="AllowSensorValueChange" type="checkbox" defaultValue="false" hidden="True"></Field>
 			<Field id="simpleSeparator3" type="separator"/>
 			<Field	  id="label3"			  type="label" >
-				<Label>text</Label>
+				<Label>Use this to overwrite / change ip # etc of EXISTING devices
+Do not create devices manually, leave that to the plugin.</Label>
 			</Field>
 
 
@@ -29,7 +30,7 @@
 			</Field>
 
 			<Field	  id="overwritePIN"			  type="textfield" >
-				<Label>overwrite PIN number</Label>
+				<Label>overwrite PIN number (not used yet)</Label>
 			</Field>
 
 		</ConfigUI>

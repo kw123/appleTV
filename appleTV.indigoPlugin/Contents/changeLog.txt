@@ -1,3 +1,7 @@
+changes in v1.0.12@ 2021-05-01
+==================  
+1. updated help texts to reflect: do not create apple tv devices manually, all done by the plugin automatically
+
 changes in v1.0.11@ 2021-04-30
 ==================  
 1. fixed in Line 927 has error=

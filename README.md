@@ -1,35 +1,36 @@
-# appleTV plugin for indigo 
-	
+# =================== HELP for appleTV plugin===========================  
 ##  **credits**    
 This plugin is build on top of AVTpy by Postlund, see https://github.com/postlund/pyatv  
   
 ##  STEPS TO MAKE IT WORK 
-1. INSTALL X-CODE  in a terminal window    
+1. INSTALL X-CODE  in a terminal window  
 xcode-select —install  
   
 2. INSTALL PYTHON3 - if you don't have it on your mac (do not use home-brew)   
 go to eg https://www.python.org/downloads/release/python-392/  
 and download the 64 bit installer and install (all point and click)  
   
-3. DOWNLOAD/INSTALL pyatv  
-pip3 install pyatv   in a terminal window   
+3. DOWNLOAD/INSTALL pyatv  in a terminal window  
+pip3 install pyatv  
   
 path to python either    /usr/local/bin/python3  for 10.14.x and earlier (w pip3 install)  
-				   or    /usr/bin/python3        for 11.x and later)  
+                   or    /usr/bin/python3        for 11.x and later)  
 Try 'which python3' in a terminal window to check for path on your MAC)  
   
-##  WHAT DOES IT DO:  
+##  WHAT DOES THE PLUGIN DO:  
 1. it scans the local network for apple TVs with atvscript.py scan   
+   for each apple tv it finds it will create a correcponding indigo device  
+   you can exclude ip numbers from being considered  
 2. then is lauchnes a listener for any change of channel, volume, dev state etc and populates the indigo dev states accordingly   
 3. every xx minutes it will rescan for new apple TVs - or you can manually scan in plugin/menu  
-4. you can send predefined commands selectable from a list in menu or action to the apple TVs 
-5. you can send free text commands in menu or action to the apple TVs, see below for list 
-6. you can set certain IP numbers to be ignored, change ip number / mac# of an apple device in device edit if that has changed 
+4. you can send predefined commands selectable from a list in menu or action to the apple TVs  
+5. you can send free text commands in menu or action to the apple TVs, see below for list  
+6. you can set certain IP numbers to be ignored (in menu), change ip number / mac# of an apple device in device edit if that has changed  
 -- not yet implemented: play music / video on apple TV. That requires to sync a pin between the apple TV and the plugin 
   
 ##  Possible things that can go wrong:   
    dev state: 'Unclosed client session' or something like it  
-	  try to use iphone remote app to connect to the appleTV. If that does not work a power cycle appleTV should fix it  
+      try to use iphone remote app to connect to the appleTV. If that does not work, a power cycle/restart of the appleTV should fix it  
   
 ## AVAILABE COMMANDS IN MENU AND ACTION   
   
@@ -62,7 +63,7 @@ Try 'which python3' in a terminal window to check for path on your MAC)
 ### POWER COMMANDS:  
    - power_state - Return device power state  
    - turn_off - Turn device off  
-   - turn_on - Turn device on 
+   - turn_on - Turn device on  
   
 ### METADATA COMMANDS, PRINTED TO LOG  
    - app - Return information about current app playing something  
@@ -92,3 +93,6 @@ Try 'which python3' in a terminal window to check for path on your MAC)
 ### AirPlay commands:  
    - play_url - Play media from an URL on the device   
   
+## DETAILED logs are in  
+   ../Perceptive Automation/Indigo x.y/Logs/com.karlwachs.appleTV/plugin.log   
+===============================================================================  
