@@ -308,18 +308,28 @@ class Plugin(indigo.PluginBase):
 		out += u"  \n"
 		out += u"##  STEPS TO MAKE IT WORK \n"
 		out += u"1. INSTALL X-CODE  in a terminal window  \n"
-		out += u"xcode-select —install  \n"
+		out += u"--- xcode-select —install  \n"
 		out += u"  \n"
-		out += u"2. INSTALL PYTHON3 - if you don't have it on your mac (do not use home-brew)   \n"
+		out += u"2. now test if python3 is installed:   \n"
+		out += u"   open terminal and type python3    and exit() if its starts sucessfully \n"
+		out += u"2.1 if python3 is not installed:   \n"
+		out += u"    INSTALL PYTHON3 - if you don't have it on your mac (do not use home-brew)   \n"
 		out += u"go to eg https://www.python.org/downloads/release/python-392/  \n"
 		out += u"and download the 64 bit installer and install (all point and click)  \n"
-		out += u"  \n"
-		out += u"3. DOWNLOAD/INSTALL pyatv  in a terminal window  \n"
-		out += u"pip3 install pyatv  \n"
 		out += u"  \n"
 		out += u"path to python either    /usr/local/bin/python3  for 10.14.x and earlier (w pip3 install)  \n"
 		out += u"                   or    /usr/bin/python3        for 11.x and later)  \n"
 		out += u"Try 'which python3' in a terminal window to check for path on your MAC)  \n"
+		out += u"  \n"
+		out += u"3. DOWNLOAD/INSTALL pyatv  in a terminal window  \n"
+		out += u"--- sudo pip3 install pyatv  \n"
+		out += u"  \n"
+		out += u"3.1 you might need to install the following if pytv shows errors like:  \n"
+		out += u"  ModuleNotFoundError: No module named 'pendulum'  \n"
+		out += u"--- sudo pip3 install pendulum \n"
+		out += u"--- sudo pip3 install bidict  \n"
+		out += u"--- sudo pip3 install more_itertools  \n"
+		out += u"--- sudo pip3 install bitstruct  \n"
 		out += u"  \n"
 		out += u"##  WHAT DOES THE PLUGIN DO:  \n"
 		out += u"1. it scans the local network for apple TVs with atvscript.py scan   \n"
@@ -478,7 +488,7 @@ class Plugin(indigo.PluginBase):
 		try:
 			cc = valuesDict["command"].split(";")
 			dev = indigo.devices[int(valuesDict["appleTV"])]
-			cmd = [self.pathToPython3,self.pathToPlugin+"atvremote.py", "-i", dev.states["MAC"], cc[0]]
+			cmd = [self.pathToPython3,self.pathToPlugin+"scripts/atvremote.py", "-i", dev.states["MAC"], cc[0]]
 			if cc[1] == "":
 				out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 				if self.decideMyLog(u"Action"): self.indiLOG.log(10,u"execCommandToAppleTVCALLBACK command:{}".format(cmd))
@@ -502,7 +512,7 @@ class Plugin(indigo.PluginBase):
 		try:
 			cc = valuesDict["command"]
 			dev = indigo.devices[int(valuesDict["appleTV"])]
-			cmd = [self.pathToPython3,self.pathToPlugin+"atvremote.py", "-i", dev.states["MAC"], cc]
+			cmd = [self.pathToPython3,self.pathToPlugin+"scripts/atvremote.py", "-i", dev.states["MAC"], cc]
 			if self.decideMyLog(u"Action"): self.indiLOG.log(10,u"execCommandToAppleTVCALLBACK  command:{}".format(cmd))
 			out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()[0]
 			self.indiLOG.log(20,u"action: {};  response:\n{}".format(cc, out))
@@ -760,7 +770,7 @@ class Plugin(indigo.PluginBase):
 
 				# restart the listener process 
 				if ListenProcessFileHandle == "" or self.scanThreadsForPush[ip]["status"] == "restart":
-					cmd = [self.pathToPython3, self.pathToPlugin+"atvscript.py","-s", ip, "push_updates"]
+					cmd = [self.pathToPython3, self.pathToPlugin+"scripts/atvscript.py","-s", ip, "push_updates"]
 					if self.decideMyLog(u"Threads"): self.indiLOG.log(10,"=== listenToDevices  ip:{}, (re)starting listener w cmd:{}".format(ip, cmd))
 					ListenProcessFileHandle = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 					msg = unicode(ListenProcessFileHandle.stderr)
@@ -1023,7 +1033,7 @@ python3 atvscript.py scan   returns:
 		try:
 			out = "  "
 			retDict = {}
-			cmd = [self.pathToPython3, self.pathToPlugin+"atvscript.py", "scan"]
+			cmd = [self.pathToPython3, self.pathToPlugin+"scripts/atvscript.py", "scan"]
 			if self.decideMyLog(u"GetData"): self.indiLOG.log(10,u"=========getscriptScan cmd:{}".format(cmd))
 			out = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE).communicate()
 			if self.decideMyLog(u"ReceiveData"): self.indiLOG.log(10,u"=========getscriptScan out:{}".format(out))

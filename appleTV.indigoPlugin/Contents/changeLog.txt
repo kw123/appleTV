@@ -1,3 +1,23 @@
+changes in v1.1.14@ 2021-05-01
+==================  
+1. upgraded to the march 2021 version of pyatv
+install w:
+sudo pip3 install pyatv 
+
+or download the zipfile and
+
+cd ~/Downloads/pyatv-master/setup.py
+sudo python3 setup.py install 
+
+if you get an error msg when you run the plugin:
+  "ModuleNotFoundError: No module named 'pendulum'" 
+you need to add in a terminal (or just install them anyway, should not harm)
+sudo pip3 install pendulum 
+sudo pip3 install bidict  
+sudo pip3 install more_itertools  
+sudo pip3 install bitstruct  
+
+
 changes in v1.0.14@ 2021-05-01
 ==================  
 1. will now try to auto detect python3, 

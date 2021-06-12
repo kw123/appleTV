@@ -1,21 +1,31 @@
-# == HELP for appleTV plugin ==  
+# =================== HELP for appleTV plugin===========================  
 ##  **credits**    
 This plugin is build on top of AVTpy by Postlund, see https://github.com/postlund/pyatv  
   
 ##  STEPS TO MAKE IT WORK 
 1. INSTALL X-CODE  in a terminal window  
-xcode-select —install  
+   xcode-select —install  
   
-2. INSTALL PYTHON3 - if you don't have it on your mac (do not use home-brew)   
+2. now test if python3 is installed:   
+   open terminal and type python3    and exit() if its starts sucessfully 
+2.1 if python3 is not installed:   
+    INSTALL PYTHON3 - if you don't have it on your mac (do not use home-brew)   
 go to eg https://www.python.org/downloads/release/python-392/  
 and download the 64 bit installer and install (all point and click)  
-  
-3. DOWNLOAD/INSTALL pyatv  in a terminal window  
-pip3 install pyatv  
   
 path to python either    /usr/local/bin/python3  for 10.14.x and earlier (w pip3 install)  
                    or    /usr/bin/python3        for 11.x and later)  
 Try 'which python3' in a terminal window to check for path on your MAC)  
+  
+3. DOWNLOAD/INSTALL pyatv  in a terminal window  
+    sudo pip3 install pyatv  
+  
+3.1 you might need to install the following if pytv shows errors like:  
+  ModuleNotFoundError: No module named 'pendulum'  
+    sudo pip3 install pendulum 
+    sudo pip3 install bidict  
+    sudo pip3 install more_itertools  
+    sudo pip3 install bitstruct  
   
 ##  WHAT DOES THE PLUGIN DO:  
 1. it scans the local network for apple TVs with atvscript.py scan   
@@ -95,3 +105,4 @@ Try 'which python3' in a terminal window to check for path on your MAC)
   
 ## DETAILED logs are in  
    ../Perceptive Automation/Indigo x.y/Logs/com.karlwachs.appleTV/plugin.log   
+===============================================================================  
